@@ -8,6 +8,10 @@
     <!-- Dependencias UI -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+    
+    <!-- jsPDF para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         * {
@@ -1444,6 +1448,195 @@
         }
         // ===== FIN FUNCIONALIDAD AGREGAR NUEVO PUNTO =====
 
+        // ===== GENERAR PDF ACTA DE PRE-INGRESO =====
+        function generarPDFActa() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Obtener datos guardados
+            const folio = sessionStorage.getItem('folioPreIngreso');
+            const datosStr = sessionStorage.getItem('datosPreIngreso');
+            if (!folio || !datosStr) {
+                alert('No hay datos de pre-ingreso para generar el PDF');
+                return;
+            }
+            
+            const datos = JSON.parse(datosStr);
+            const cliente = clientesData[clienteActual];
+            const olSeleccionada = datos.ol.split('-');
+            const ol = cliente.ols[parseInt(olSeleccionada[1], 10)];
+            
+            let y = 20;
+            
+            // Título
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`ACTA DE PRE-INGRESO N° ${folio}`, 105, y, { align: 'center' });
+            y += 12;
+            
+            // Información Cliente
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Información Cliente', 20, y);
+            doc.setDrawColor(0);
+            doc.setLineWidth(0.5);
+            doc.line(20, y + 1, 190, y + 1);
+            y += 7;
+            
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text('SOLICITANTE', 20, y);
+            doc.text(': ' + cliente.nombre, 70, y);
+            y += 5;
+            doc.text('ADC Responsable', 20, y);
+            doc.text(': ' + datos.adcResponsable, 70, y);
+            y += 5;
+            doc.text('OL', 20, y);
+            doc.text(': ' + ol.codigo, 70, y);
+            y += 5;
+            doc.text('Contacto', 20, y);
+            doc.text(': ' + datos.atencionA, 70, y);
+            y += 8;
+            
+            // Información General
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Información General', 20, y);
+            doc.line(20, y + 1, 190, y + 1);
+            y += 7;
+            
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Tipo de muestra', 20, y);
+            doc.text(': ' + (datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'), 70, y);
+            y += 5;
+            doc.text('Origen de las muestras (Matriz)', 20, y);
+            doc.text(': ' + datos.matriz, 70, y);
+            y += 5;
+            doc.text('Muestreados por', 20, y);
+            doc.text(': ' + (datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'CLIENTE'), 70, y);
+            y += 5;
+            doc.text('Destino de la muestra', 20, y);
+            doc.text(': Laboratorio SGS Santiago', 70, y);
+            y += 5;
+            doc.text('Número de muestras', 20, y);
+            doc.text(': ' + datos.puntosSeleccionados.length, 70, y);
+            y += 5;
+            doc.text('Plan', 20, y);
+            doc.text(': ' + datos.plan, 70, y);
+            y += 5;
+            doc.text('Generación de JOB', 20, y);
+            const jobText = datos.generacionJob === 'total' 
+                ? 'Generar un JOB para la totalidad de los puntos ingresados' 
+                : 'Generar un JOB por punto ingresado';
+            doc.text(': ' + jobText, 70, y);
+            y += 8;
+            
+            // Puntos de Monitoreo
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Puntos de Monitoreo', 20, y);
+            doc.line(20, y + 1, 190, y + 1);
+            y += 5;
+            
+            const tablaPuntos = [];
+            datos.puntosSeleccionados.forEach((p, idx) => {
+                // ID MUESTRA
+                let idMuestra = p.id || 'N/A';
+                if (p.tipo === 'filtro') {
+                    idMuestra += `\nFiltro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}`;
+                }
+                
+                // LUGAR DE MUESTREO
+                let lugarMuestreo = '';
+                if (p.tipo === 'filtro') {
+                    lugarMuestreo = p.lugarMuestreo || '';
+                } else {
+                    lugarMuestreo = p.lugar || 'N/A';
+                    if (p.direccion) {
+                        lugarMuestreo += `\n${p.direccion}`;
+                    }
+                }
+                
+                // FECHA/HORA INICIO
+                const fechaInicio = p.fechaInicio && p.horaInicio 
+                    ? `${p.fechaInicio} ${p.horaInicio}` 
+                    : p.fechaInicio || '';
+                
+                // FECHA/HORA TÉRMINO
+                const fechaTermino = p.fechaTermino && p.horaTermino 
+                    ? `${p.fechaTermino} ${p.horaTermino}` 
+                    : p.fechaTermino || '';
+                
+                // COMENTARIOS
+                const comentario = p.comentario && p.comentario.trim() 
+                    ? p.comentario 
+                    : 'Sin comentario';
+                
+                tablaPuntos.push([
+                    idx + 1, 
+                    idMuestra, 
+                    lugarMuestreo, 
+                    fechaInicio, 
+                    fechaTermino,
+                    comentario
+                ]);
+            });
+            
+            doc.autoTable({
+                startY: y,
+                head: [['#', 'ID MUESTRA', 'LUGAR DE MUESTREO', 'FECHA/HORA INICIO', 'FECHA/HORA TÉRMINO', 'COMENTARIOS']],
+                body: tablaPuntos,
+                theme: 'grid',
+                styles: { 
+                    fontSize: 7, 
+                    cellPadding: 2,
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1
+                },
+                headStyles: { 
+                    fillColor: [240, 240, 240], 
+                    textColor: [0, 0, 0], 
+                    fontStyle: 'bold',
+                    fontSize: 7
+                },
+                columnStyles: {
+                    0: { cellWidth: 8, halign: 'center' },
+                    1: { cellWidth: 35 },
+                    2: { cellWidth: 35 },
+                    3: { cellWidth: 32 },
+                    4: { cellWidth: 32 },
+                    5: { cellWidth: 38 }
+                }
+            });
+            
+            y = doc.lastAutoTable.finalY + 8;
+            
+            // Información adicional
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Fecha de Transporte', 20, y);
+            doc.text(': ' + datos.fechaTransporte + ' ' + datos.horaTransporte, 70, y);
+            y += 5;
+            doc.text('Responsable del monitoreo', 20, y);
+            doc.text(': ' + datos.responsable, 70, y);
+            y += 5;
+            doc.text('Observaciones de Terreno', 20, y);
+            doc.text(': ' + datos.observaciones, 70, y);
+            y += 15;
+            
+            // Footer
+            doc.setFontSize(7);
+            doc.setTextColor(100);
+            const footerY = 280;
+            doc.text('SGS Chile Ltda. Santiago: Puerto Madero #130, Pudahuel | Antofagasta: Av. Pedro Aguirre Cerda #7367 | Concepción: Av. Américo Vespucio #820 | Pto. Varas: Ruta 5 Sur KM 103', 105, footerY, { align: 'center' });
+            doc.text('T (56-2) 289 89500, (56-2) 289 89512, (56-55) 223 4098, (56-55) 223 4596, (56-41) 241 6577, (56-65) 232 1800, (56-2) 232 1801. www.sgs.com', 105, footerY + 3, { align: 'center' });
+            
+            // Descargar
+            doc.save(`Acta_PreIngreso_${folio}.pdf`);
+        }
+        // ===== FIN GENERAR PDF =====
+
 
         function confirmarSeleccion() {
             if (!clienteActual) return;
@@ -1645,7 +1838,7 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                       <p><strong>Fecha:</strong> ${fAhora}</p>
                       <p><strong>Usuario:</strong> ${datos.solicitadoPor}</p>
                       <p><strong>Obser.:</strong> ${datos.observaciones}</p>
-                      <a href="#" class="link-descarga"><i class="fas fa-download"></i> DESCARGAR ACTA DE PRE-INGRESO</a>
+                      <a href="#" class="link-descarga" id="btnDescargarActa"><i class="fas fa-download"></i> DESCARGAR ACTA DE PRE-INGRESO</a>
                     </div>
                   </div>
                 </div>
@@ -1673,6 +1866,11 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
             if (resumenEl) { resumenEl.classList.add('active'); }
             // Acción volver
             qs('#btnVolverFormulario').addEventListener('click', () => location.reload());
+            // Acción descargar acta
+            qs('#btnDescargarActa').addEventListener('click', (e) => {
+                e.preventDefault();
+                generarPDFActa();
+            });
         }
 
         // --- Enviar / guardar y mostrar resumen ---
