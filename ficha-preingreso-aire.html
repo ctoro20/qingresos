@@ -958,9 +958,9 @@
             <div class="logo"><h2>SGS</h2></div>
             <div class="user"><i class="fas fa-user-circle"></i><span>gnunovero</span></div>
             <ul class="nav">
-                <li><a href="sgs-sistema-simplificado.html"><i class="fas fa-home"></i><span>Inicio</span></a></li>
-                <li><a href="sgs-sistema-simplificado.html#ingresos-agua"><i class="fas fa-tint"></i><span>Ingresos de Agua</span></a></li>
-                <li class="active"><a href="sgs-sistema-simplificado.html#ingresos-aire"><i class="fas fa-wind"></i><span>Ingresos de Aire</span></a></li>
+                <li><a href="index.html"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+                <li><a href="index.html#ingresos-agua"><i class="fas fa-tint"></i><span>Ingresos de Agua</span></a></li>
+                <li class="active"><a href="index.html#ingresos-aire"><i class="fas fa-wind"></i><span>Ingresos de Aire</span></a></li>
                 <li><a href="#" id="btnSalir"><i class="fas fa-sign-out-alt"></i><span>Salir</span></a></li>
             </ul>
         </nav>
@@ -1447,6 +1447,41 @@
             alert('Punto de muestreo agregado exitosamente');
         }
         // ===== FIN FUNCIONALIDAD AGREGAR NUEVO PUNTO =====
+
+        // ===== MODAL MASIVO (SOLO VISUAL) =====
+        let modalAgregarMasivo;
+
+        function abrirModalMasivo() {
+            // Preseleccionar matriz del paso 1
+            const matrizPaso1 = qs('#matriz').value;
+            qs('#matrizMasivo').value = matrizPaso1 || '';
+            
+            // Cargar lugares de monitoreo
+            const selectLugar = qs('#lugarMonitoreoMasivo');
+            selectLugar.innerHTML = '<option value="">Seleccione un lugar</option>';
+            
+            if (clienteActual && clientesData[clienteActual]) {
+                const cliente = clientesData[clienteActual];
+                cliente.ols.forEach(ol => {
+                    ol.proyectos.forEach(proyecto => {
+                        const option = document.createElement('option');
+                        option.value = proyecto;
+                        option.textContent = proyecto;
+                        selectLugar.appendChild(option);
+                    });
+                });
+            }
+            
+            // Limpiar textarea
+            qs('#dataMasivo').value = '';
+            
+            modalAgregarMasivo.classList.add('show');
+        }
+
+        function cerrarModalMasivo() {
+            modalAgregarMasivo.classList.remove('show');
+        }
+        // ===== FIN MODAL MASIVO =====
 
         // ===== GENERAR PDF ACTA DE PRE-INGRESO =====
         function generarPDFActa() {
@@ -2059,7 +2094,17 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                 if (e.target.id === 'btnNuevoPunto') {
                     abrirModalAgregarPunto();
                 }
+                if (e.target.id === 'btnMasivo') {
+                    abrirModalMasivo();
+                }
             });
+
+            // ===== Modal masivo - listeners =====
+            modalAgregarMasivo = qs('#modalAgregarMasivo');
+            qs('#btnCerrarMasivo').addEventListener('click', cerrarModalMasivo);
+            qs('#btnCerrarMasivo2').addEventListener('click', cerrarModalMasivo);
+            qs('#btnGuardarMasivo').addEventListener('click', cerrarModalMasivo); // Solo cierra, no hace nada
+            modalAgregarMasivo.addEventListener('click', e => { if (e.target === modalAgregarMasivo) cerrarModalMasivo(); });
             // ===== Fin modal agregar nuevo punto =====
             // ===== Fin modal de comentarios =====
         });
@@ -2121,6 +2166,56 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
             <div class="modal-footer-nuevo">
                 <button class="btn-modal-cancel" id="btnCerrarNuevoPunto2">Cerrar</button>
                 <button class="btn-modal-confirm" id="btnGuardarNuevoPunto">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Agregar Masivo -->
+    <div id="modalAgregarMasivo" class="modal-agregar-punto">
+        <div class="modal-dialog-nuevo" style="max-width:700px">
+            <div class="modal-header-nuevo">
+                <h5>Agregar punto de muestreo masivo</h5>
+                <button class="close-nuevo" id="btnCerrarMasivo">&times;</button>
+            </div>
+            <div class="modal-body-nuevo">
+                <div class="form-group-nuevo">
+                    <label>Matriz<span class="required">*</span></label>
+                    <select id="matrizMasivo" disabled style="background:#f5f5f5;cursor:not-allowed">
+                        <option value="">Seleccione una matriz</option>
+                        <option value="Agua Residual (F)">Agua Residual (F)</option>
+                        <option value="Agua Potable/Bebida (A)">Agua Potable/Bebida (A)</option>
+                        <option value="POLVO_SEDIMENTABLE">POLVO_SEDIMENTABLE</option>
+                        <option value="AIRE_MP_FILTRO_47MM">AIRE_MP_FILTRO_47MM</option>
+                        <option value="AIRE_MP_FILTRO_HVOL">AIRE_MP_FILTRO_HVOL</option>
+                        <option value="AIRE_MP_FILTRO_37MM">AIRE_MP_FILTRO_37MM</option>
+                    </select>
+                </div>
+                <div class="form-group-nuevo">
+                    <label>Lugar de Monitoreo<span class="required">*</span></label>
+                    <select id="lugarMonitoreoMasivo">
+                        <option value="">Seleccione un lugar</option>
+                        <option value="DIVISIÓN DMH">DIVISIÓN DMH</option>
+                    </select>
+                </div>
+                <div class="form-group-nuevo">
+                    <label style="margin-bottom:8px">
+                        *Pegar aquí la data (CTRL + V)<br>
+                        <span style="font-size:11px;color:#666;font-weight:normal">
+                            *Considere utilizar este formato para ingresar los registros<br>
+                            *Considere la primera fila como cabecera para poder identificar el tipo de dato<br>
+                            *Los nombres de la cabecera deben ser iguales al ejemplo para poder ser identificados correctamente.
+                        </span>
+                    </label>
+                    <textarea id="dataMasivo" rows="12" style="font-family:monospace;font-size:12px;width:100%;max-width:650px;resize:vertical" placeholder="|---------------------------|----------------------------|
+| PUNTO DE MUESTREO         | FECHA/HORA DE MUESTREO     |
+|---------------------------|----------------------------|
+| Nombre de Punto           | FORMATO: DD/MM/YYYY HH:MM  |
+|---------------------------|----------------------------|"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer-nuevo">
+                <button class="btn-modal-cancel" id="btnCerrarMasivo2">Cerrar</button>
+                <button class="btn-modal-confirm" id="btnGuardarMasivo">Guardar</button>
             </div>
         </div>
     </div>
