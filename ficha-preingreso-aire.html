@@ -365,11 +365,11 @@
 
         .modal-content {
             background: #fff;
-            padding: 30px;
+            padding: 15px;
             border-radius: 8px;
             width: 90%;
             max-width: 900px;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
@@ -378,12 +378,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #ef8157;
             background: transparent;
             color: #ef8157;
         }
+
+            .modal-header h5 {
+                font-size: 16px;
+                margin: 0;
+                font-weight: 500
+            }
 
         .modal-body {
             padding: 0;
@@ -395,25 +401,34 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            padding-top: 15px;
+            padding-top: 10px;
             border-top: 1px solid #e0e0e0;
+            margin-top: 10px
         }
 
         .modal-search {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
             .modal-search input {
                 width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
+                padding: 8px 12px;
+                border: 2px solid #d0d0d0;
+                border-radius: 8px;
                 font-size: 14px;
+                transition: border-color .3s;
+                background: #fafafa
             }
+
+                .modal-search input:focus {
+                    outline: none;
+                    border-color: #ef8157;
+                    background: #fff
+                }
 
         .modal-table {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
             .modal-table thead th {
@@ -421,15 +436,15 @@
                 border-bottom: 2px solid #ddd;
                 color: #252422;
                 font-weight: 500;
-                font-size: 12px;
+                font-size: 11px;
                 text-transform: uppercase;
-                padding: 10px 8px;
+                padding: 8px 6px;
             }
 
             .modal-table tbody td {
                 border-bottom: 1px solid #f0f0f0;
                 font-size: 13px;
-                padding: 10px 8px;
+                padding: 8px 6px;
             }
 
             .modal-table tbody tr:hover {
@@ -439,7 +454,7 @@
         .modal-close {
             background: none;
             border: none;
-            font-size: 28px;
+            font-size: 24px;
             cursor: pointer;
             color: #666;
             line-height: 1;
@@ -453,20 +468,20 @@
             background: #ccc;
             color: #fff;
             border: none;
-            padding: 10px 25px;
+            padding: 8px 20px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .btn-modal-confirm {
             background: #5fb3b3;
             color: #fff;
             border: none;
-            padding: 10px 25px;
+            padding: 8px 20px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
         }
 
             .btn-modal-confirm:hover {
@@ -784,6 +799,151 @@
                 font-size: 14px
             }
 
+
+        /* Botones nuevo punto */
+        .modal-search-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 0;
+            margin-bottom: 10px
+        }
+
+        .modal-search-actions input {
+            flex: 1;
+            margin: 0;
+            padding: 8px 12px;
+            border: 2px solid #d0d0d0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color .3s;
+            background: #fafafa
+        }
+
+            .modal-search-actions input:focus {
+                outline: none;
+                border-color: #ef8157;
+                background: #fff
+            }
+
+        .btn-nuevo-punto {
+            background: #ef8157;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all .3s
+        }
+
+            .btn-nuevo-punto:hover {
+                opacity: .9
+            }
+
+        /* Modal agregar punto */
+        .modal-agregar-punto {
+            display: none;
+            position: fixed;
+            z-index: 2002;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.5);
+            align-items: center;
+            justify-content: center
+        }
+
+            .modal-agregar-punto.show {
+                display: flex
+            }
+
+            .modal-agregar-punto .modal-dialog-nuevo {
+                background: #fff;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 600px;
+                box-shadow: 0 5px 15px rgba(0,0,0,.3)
+            }
+
+            .modal-agregar-punto .modal-header-nuevo {
+                padding: 20px;
+                border-bottom: 1px solid #ddd;
+                display: flex;
+                justify-content: space-between;
+                align-items: center
+            }
+
+                .modal-agregar-punto .modal-header-nuevo h5 {
+                    margin: 0;
+                    color: #66615b;
+                    font-size: 18px
+                }
+
+                .modal-agregar-punto .modal-header-nuevo .close-nuevo {
+                    background: none;
+                    border: none;
+                    font-size: 28px;
+                    color: #999;
+                    cursor: pointer;
+                    line-height: 1;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px
+                }
+
+                    .modal-agregar-punto .modal-header-nuevo .close-nuevo:hover {
+                        color: #333
+                    }
+
+            .modal-agregar-punto .modal-body-nuevo {
+                padding: 20px
+            }
+
+                .modal-agregar-punto .modal-body-nuevo .form-group-nuevo {
+                    margin-bottom: 15px
+                }
+
+                    .modal-agregar-punto .modal-body-nuevo .form-group-nuevo label {
+                        font-family: Muli,Arial,sans-serif;
+                        font-size: 14px;
+                        color: #252422;
+                        font-weight: normal;
+                        margin-bottom: 5px;
+                        display: block
+                    }
+
+                        .modal-agregar-punto .modal-body-nuevo .form-group-nuevo label .required {
+                            color: #e74c3c
+                        }
+
+                    .modal-agregar-punto .modal-body-nuevo .form-group-nuevo input,
+                    .modal-agregar-punto .modal-body-nuevo .form-group-nuevo select {
+                        width: 100%;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        padding: 10px;
+                        font-size: 14px;
+                        font-family: 'Montserrat','Helvetica Neue',Arial,sans-serif
+                    }
+
+                        .modal-agregar-punto .modal-body-nuevo .form-group-nuevo input:focus,
+                        .modal-agregar-punto .modal-body-nuevo .form-group-nuevo select:focus {
+                            outline: none;
+                            border-color: #51cbce
+                        }
+
+            .modal-agregar-punto .modal-footer-nuevo {
+                padding: 15px 20px;
+                border-top: 1px solid #ddd;
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px
+            }
+
+
     </style>
 </head>
 
@@ -1056,7 +1216,6 @@
                 if (p.tipo === 'filtro') {
                     tr.innerHTML = `<td style="text-align:center;font-weight:bold;">${index + 1}</td>
               <td><div style="font-weight:500;">${p.id}</div>
-                  <div style="font-size:11px;color:#666;">${p.pesoOriginal}</div>
                   <div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div></td>
               <td><input type="text" class="form-control" style="font-size:12px;" value="${p.lugarMuestreo || ''}" data-idx="${index}" data-field="lugarMuestreo" placeholder="Ingrese lugar"></td>
               <td><input type="date" class="form-control" style="display:inline-block;width:48%;margin-right:2%;font-size:12px;" value="${p.fechaInicio || ''}" data-idx="${index}" data-type="filtro" data-field="fechaInicio">
@@ -1086,6 +1245,37 @@
         function abrirModalMPS() {
             const titulo = qs('#modalPuntosTitulo'), tbody = qs('#tablaPuntosModal'), thead = qs('#modalTableHeader'), pts = puntosMuestreoPorCliente[clienteActual] || [];
             titulo.textContent = 'Seleccionar Puntos de Muestreo MPS';
+            
+            // Agregar botones si no existen
+            let searchDiv = qs('.modal-search');
+            let actionsDiv = qs('.modal-search-actions');
+            
+            if (!actionsDiv) {
+                // Mover input de búsqueda a nuevo contenedor
+                const searchInput = qs('#searchPuntos');
+                actionsDiv = document.createElement('div');
+                actionsDiv.className = 'modal-search-actions';
+                actionsDiv.appendChild(searchInput);
+                
+                // Agregar botones
+                const btnNuevo = document.createElement('button');
+                btnNuevo.className = 'btn-nuevo-punto';
+                btnNuevo.id = 'btnNuevoPunto';
+                btnNuevo.textContent = 'Nuevo Punto';
+                
+                const btnMasivo = document.createElement('button');
+                btnMasivo.className = 'btn-nuevo-punto';
+                btnMasivo.id = 'btnMasivo';
+                btnMasivo.textContent = 'Masivo';
+                
+                actionsDiv.appendChild(btnNuevo);
+                actionsDiv.appendChild(btnMasivo);
+                
+                searchDiv.parentNode.insertBefore(actionsDiv, searchDiv);
+                searchDiv.style.display = 'none';
+            }
+            actionsDiv.style.display = 'flex';
+            
             thead.innerHTML = '<th style="width:50px"><input type="checkbox" id="selectAll"></th><th>ID MUESTRA</th><th>LUGAR / DIRECCIÓN</th><th>COORDENADAS</th>';
             tbody.innerHTML = '';
             pts.forEach((p, idx) => {
@@ -1103,7 +1293,12 @@
         function abrirModalFiltros(tipoFiltro) {
             const titulo = qs('#modalPuntosTitulo'), tbody = qs('#tablaPuntosModal'), thead = qs('#modalTableHeader'), arr = (filtrosPorCliente[clienteActual] || {})[tipoFiltro] || [];
             titulo.textContent = `Seleccionar Filtros ${tipoFiltro.toUpperCase()}`;
-            thead.innerHTML = '<th style="width:50px"><input type="checkbox" id="selectAll"></th><th>ID FILTRO</th><th>PESO ORIGINAL</th><th>FECHA CREACIÓN</th><th>ESTADO</th>';
+            
+            // Ocultar botones en modo filtros
+            const actionsDiv = qs('.modal-search-actions');
+            if (actionsDiv) actionsDiv.style.display = 'none';
+            qs('.modal-search').style.display = 'block';
+            thead.innerHTML = '<th style="width:50px"><input type="checkbox" id="selectAll"></th><th>ID FILTRO</th><th>FECHA CREACIÓN</th><th>ESTADO</th>';
             tbody.innerHTML = '';
             const hoy = new Date();
             arr.forEach((f, idx) => {
@@ -1115,7 +1310,7 @@
                 else { estado = '<span style="color:#27ae60;">✓ Disponible</span>' }
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td><input type="checkbox" class="checkbox-punto" data-index="${idx}" data-tipo="filtro" ${ya ? 'checked' : ''} ${!ok ? 'disabled' : ''}></td>
-                          <td>${f.id}</td><td>${f.pesoOriginal}</td>
+                          <td>${f.id}</td>
                           <td>${f.fechaCreacion}<br><small style="color:#666;">(${dias} días)</small></td>
                           <td>${estado}</td>`;
                 if (!ok) tr.style.opacity = '.5';
@@ -1157,6 +1352,97 @@
             }
         }
         // ===== FIN FUNCIONALIDAD DE COMENTARIOS =====
+
+
+        // ===== FUNCIONALIDAD AGREGAR NUEVO PUNTO MPS =====
+        let modalAgregarPunto;
+
+        // Abrir modal agregar punto
+        function abrirModalAgregarPunto() {
+            // Cargar lugares de monitoreo según cliente
+            const selectLugar = qs('#lugarMonitoreoNuevoPunto');
+            selectLugar.innerHTML = '<option value="">Seleccione un lugar</option>';
+            
+            if (clienteActual && clientesData[clienteActual]) {
+                const cliente = clientesData[clienteActual];
+                
+                // Agregar proyectos como lugares
+                cliente.ols.forEach(ol => {
+                    ol.proyectos.forEach(proyecto => {
+                        const option = document.createElement('option');
+                        option.value = proyecto;
+                        option.textContent = proyecto;
+                        selectLugar.appendChild(option);
+                    });
+                });
+            }
+            
+            // Preseleccionar matriz del paso 1
+            const matrizPaso1 = qs('#matriz').value;
+            qs('#matrizNuevoPunto').value = matrizPaso1 || '';
+            
+            // Limpiar campos
+            qs('#nombrePuntoNuevo').value = '';
+            qs('#direccionMonitoreoNuevo').value = '';
+            
+            modalAgregarPunto.classList.add('show');
+        }
+
+        // Cerrar modal agregar punto
+        function cerrarModalAgregarPunto() {
+            modalAgregarPunto.classList.remove('show');
+        }
+
+        // Guardar nuevo punto
+        function guardarNuevoPunto() {
+            const matriz = qs('#matrizNuevoPunto').value;
+            const lugar = qs('#lugarMonitoreoNuevoPunto').value;
+            const nombre = qs('#nombrePuntoNuevo').value.trim();
+            const direccion = qs('#direccionMonitoreoNuevo').value.trim();
+            
+            // Validar campos
+            if (!matriz) {
+                alert('Por favor, seleccione una matriz');
+                return;
+            }
+            if (!lugar) {
+                alert('Por favor, seleccione un lugar de monitoreo');
+                return;
+            }
+            if (!nombre) {
+                alert('Por favor, ingrese el nombre del punto');
+                return;
+            }
+            if (!direccion) {
+                alert('Por favor, ingrese la dirección de monitoreo');
+                return;
+            }
+            
+            // Crear nuevo punto con mapeo correcto
+            const nuevoPunto = {
+                id: nombre,                    // Nombre del punto → ID Muestra
+                lugar: lugar,                  // Lugar de Monitoreo → Lugar en grilla
+                direccion: direccion,          // Dirección → Dirección en grilla
+                coordenadas: 'N/A',
+                tipo: 'mps'
+            };
+            
+            // Agregar a la lista de puntos del cliente
+            if (!puntosMuestreoPorCliente[clienteActual]) {
+                puntosMuestreoPorCliente[clienteActual] = [];
+            }
+            puntosMuestreoPorCliente[clienteActual].push(nuevoPunto);
+            
+            // Cerrar modal
+            cerrarModalAgregarPunto();
+            
+            // Refrescar la lista de puntos en el modal principal
+            abrirModalMPS();
+            
+            // Mostrar mensaje de éxito
+            alert('Punto de muestreo agregado exitosamente');
+        }
+        // ===== FIN FUNCIONALIDAD AGREGAR NUEVO PUNTO =====
 
 
         function confirmarSeleccion() {
@@ -1236,7 +1522,7 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                     ? (p.lugarMuestreo || '')
                     : `<div style="font-weight:500;">${p.lugar}</div><div style="font-size:11px;color:#666;">${p.direccion}</div>`;
                 const det = p.tipo === 'filtro'
-                    ? `<div style="font-size:11px;color:#666;">${p.pesoOriginal}</div><div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div>`
+                    ? `<div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div>`
                     : '';
                 const comentario = p.comentario && p.comentario.trim() ? p.comentario : '<span style="color:#999;font-style:italic">Sin comentario</span>';
                 return `<tr>
@@ -1562,6 +1848,21 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                     abrirModalComentario(idx);
                 }
             });
+
+            // ===== Modal agregar nuevo punto - listeners =====
+            modalAgregarPunto = qs('#modalAgregarPunto');
+            qs('#btnCerrarNuevoPunto').addEventListener('click', cerrarModalAgregarPunto);
+            qs('#btnCerrarNuevoPunto2').addEventListener('click', cerrarModalAgregarPunto);
+            qs('#btnGuardarNuevoPunto').addEventListener('click', guardarNuevoPunto);
+            modalAgregarPunto.addEventListener('click', e => { if (e.target === modalAgregarPunto) cerrarModalAgregarPunto(); });
+            
+            // Event listener para el botón nuevo punto (delegación de eventos)
+            document.addEventListener('click', e => {
+                if (e.target.id === 'btnNuevoPunto') {
+                    abrirModalAgregarPunto();
+                }
+            });
+            // ===== Fin modal agregar nuevo punto =====
             // ===== Fin modal de comentarios =====
         });
     </script>
@@ -1580,6 +1881,48 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
             <div class="modal-footer-comment">
                 <button class="btn-modal-cancel" id="btnCancelarComentario">Cancelar</button>
                 <button class="btn-modal-confirm" id="btnGuardarComentario">Guardar Comentario</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Agregar Nuevo Punto MPS -->
+    <div id="modalAgregarPunto" class="modal-agregar-punto">
+        <div class="modal-dialog-nuevo">
+            <div class="modal-header-nuevo">
+                <h5>Agregar punto de muestreo</h5>
+                <button class="close-nuevo" id="btnCerrarNuevoPunto">&times;</button>
+            </div>
+            <div class="modal-body-nuevo">
+                <div class="form-group-nuevo">
+                    <label>Matriz<span class="required">*</span></label>
+                    <select id="matrizNuevoPunto" disabled style="background:#f5f5f5;cursor:not-allowed">
+                        <option value="">Seleccione una matriz</option>
+                        <option value="Agua Potable/Bebida (A)">Agua Potable/Bebida (A)</option>
+                        <option value="POLVO_SEDIMENTABLE">POLVO_SEDIMENTABLE</option>
+                        <option value="AIRE_MP_FILTRO_47MM">AIRE_MP_FILTRO_47MM</option>
+                        <option value="AIRE_MP_FILTRO_HVOL">AIRE_MP_FILTRO_HVOL</option>
+                        <option value="AIRE_MP_FILTRO_37MM">AIRE_MP_FILTRO_37MM</option>
+                    </select>
+                </div>
+                <div class="form-group-nuevo">
+                    <label>Lugar de Monitoreo<span class="required">*</span></label>
+                    <select id="lugarMonitoreoNuevoPunto">
+                        <option value="">Seleccione un lugar</option>
+                    </select>
+                </div>
+                <div class="form-group-nuevo">
+                    <label>Nombre del Punto<span class="required">*</span></label>
+                    <input type="text" id="nombrePuntoNuevo" placeholder="Ingrese el nombre del punto">
+                </div>
+                <div class="form-group-nuevo">
+                    <label>Dirección de monitoreo<span class="required">*</span></label>
+                    <input type="text" id="direccionMonitoreoNuevo" placeholder="Ingrese la dirección">
+                </div>
+            </div>
+            <div class="modal-footer-nuevo">
+                <button class="btn-modal-cancel" id="btnCerrarNuevoPunto2">Cerrar</button>
+                <button class="btn-modal-confirm" id="btnGuardarNuevoPunto">Guardar</button>
             </div>
         </div>
     </div>
