@@ -14,95 +14,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* Estilos para las tarjetas de muestra en modo readonly */
-        .readonly-muestras-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 15px;
-        }
-        .readonly-muestra-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .readonly-muestra-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 8px; /* Reducido para acercar los campos */
-        }
-        .readonly-muestra-index {
-            background: #66615b;
-            color: white;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .readonly-muestra-id {
-            font-size: 15px;
-            font-weight: 600;
-            color: #333;
-        }
-        .readonly-muestra-id .details {
-            font-size: 11px;
-            color: #777;
-            font-weight: normal;
-            display: block;
-        }
-        .readonly-muestra-body {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 6px 15px;
-            font-size: 12px;
-        }
-        .readonly-muestra-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #555;
-        }
-        .readonly-muestra-item i {
-            color: #999;
-            width: 15px;
-            text-align: center;
-        }
-        .readonly-muestra-item strong {
-            color: #333;
-        }
-        .muestra-aceptada-tag {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: auto; /* Alinea a la derecha */
-        }
-        .muestra-aceptada-tag.si {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .muestra-aceptada-tag.no {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .muestra-aceptada-tag.pendiente {
-            background: #e9ecef;
-            color: #495057;
-            border: 1px solid #ced4da;
-        }
-    </style>
-    <style>
         * {
             margin: 0;
             padding: 0;
@@ -1050,6 +961,7 @@
                 <li><a href="index.html"><i class="fas fa-home"></i><span>Inicio</span></a></li>
                 <li><a href="ingreso-agua.html"><i class="fas fa-tint"></i><span>Ingresos de Agua</span></a></li>
                 <li class="active"><a href="ingreso-aire.html"><i class="fas fa-wind"></i><span>Ingresos de Aire</span></a></li>
+                <li><a href="gestion-usuarios.html"><i class="fas fa-users"></i><span>Gestión de Usuarios</span></a></li>
                 <li><a href="#" id="btnSalir"><i class="fas fa-sign-out-alt"></i><span>Salir</span></a></li>
             </ul>
         </nav>
@@ -1058,19 +970,16 @@
         <div class="main-panel">
             <!-- Navbar -->
             <nav class="navbar">
-                <button class="btn-menu" id="btnMenu" onclick="document.getElementById('sidebar').classList.toggle('show')"><i class="fas fa-bars"></i></button>
+                <button class="btn-menu" id="btnMenu"><i class="fas fa-bars"></i></button>
                 <button class="btn-back" id="btnBack" title="Volver"><i class="fas fa-arrow-left"></i></button>
                 <h5>Ficha de Pre-Ingreso de Aire</h5>
             </nav>
 
             <!-- Content -->
-            <div class="content">
+            <div class="content" id="pageContent">
 
                 <!-- Información general del cliente -->
-                <div id="form-view">
-
-                    <!-- Información general del cliente -->
-                    <div class="card">
+                <div class="card">
                     <div class="card-content">
                         <h5>Información general del cliente</h5>
                         <div class="row mb-3">
@@ -1278,225 +1187,778 @@
                         <button class="btn-enviar" id="btnEnviar">Enviar Pre-Ingreso</button>
                     </div>
                 </div>
-                </div>
 
-                <div id="readonly-view" style="display: none;">
-                    <!-- El contenido de solo lectura se generará aquí -->
-                </div>
-
-            </div>
+            </div><!-- /content -->
         </div><!-- /main-panel -->
     </div><!-- /wrapper -->
     <!-- Script de aplicación -->
     <script>
-        (function() {
-            // --- Datos base ---
-            const clientesData = { codelco: { nombre: 'CORP NACIONAL DEL COBRE DE CHILE', rut: '61704000-K', ols: [{ codigo: '801598', adc: 'kpizarro', atencionA: 'Juan Pérez', proyectos: ['Proyecto Chuquicamata', 'Proyecto Radomiro Tomic', 'Proyecto Ministro Hales'] }, { codigo: '801645', adc: 'mrodriguez', atencionA: 'María González', proyectos: ['Proyecto El Teniente', 'Proyecto Andina'] }] }, antofagasta: { nombre: 'ANTOFAGASTA MINERALS S.A.', rut: '96.955.310-7', ols: [{ codigo: '802105', adc: 'lmartinez', atencionA: 'Ana Rojas', proyectos: ['Proyecto Los Pelambres', 'Proyecto Centinela'] }] }, escondida: { nombre: 'MINERA ESCONDIDA LTDA', rut: '79.691.790-6', ols: [{ codigo: '803421', adc: 'rcastillo', atencionA: 'Luis Torres', proyectos: ['Proyecto Escondida Principal', 'Proyecto Escondida Norte'] }] } };
-            const puntosMuestreoPorCliente = { codelco: [{ id: 'MPS-CDL-001', lugar: 'Planta Concentradora', direccion: 'Sector Norte, Chuquicamata', coordenadas: '-22.3095, -68.9029' }, { id: 'MPS-CDL-002', lugar: 'Área de Chancado', direccion: 'Sector Este, Chuquicamata', coordenadas: '-22.3105, -68.9039' }, { id: 'MPS-CDL-003', lugar: 'Depósito de Relaves', direccion: 'Sector Sur, El Teniente', coordenadas: '-34.0895, -70.4512' }], antofagasta: [{ id: 'MPS-ANT-001', lugar: 'Planta de Procesos', direccion: 'Los Pelambres, Salamanca', coordenadas: '-31.7321, -70.5689' }, { id: 'MPS-ANT-002', lugar: 'Tranque de Relaves', direccion: 'Sector El Mauro', coordenadas: '-31.8456, -70.4521' }], escondida: [{ id: 'MPS-ESC-001', lugar: 'Mina Rajo Abierto', direccion: 'Escondida, Antofagasta', coordenadas: '-24.2345, -69.0567' }, { id: 'MPS-ESC-002', lugar: 'Puerto de Embarque', direccion: 'Coloso, Antofagasta', coordenadas: '-23.7521, -70.4456' }] };
-            const filtrosPorCliente = { codelco: { mp10: [{ id: 'FLT-MP10-CDL-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP10-CDL-002', pesoOriginal: '0.5198 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-CDL-003', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-15' }], mp25: [{ id: 'FLT-MP25-CDL-001', pesoOriginal: '0.4987 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP25-CDL-002', pesoOriginal: '0.5012 g', fechaCreacion: '2025-09-20' }] }, antofagasta: { mp10: [{ id: 'FLT-MP10-ANT-001', pesoOriginal: '0.5245 g', fechaCreacion: '2025-10-03' }, { id: 'FLT-MP10-ANT-002', pesoOriginal: '0.5212 g', fechaCreacion: '2025-10-04' }], mp25: [{ id: 'FLT-MP25-ANT-001', pesoOriginal: '0.5023 g', fechaCreacion: '2025-10-03' }] }, escondida: { mp10: [{ id: 'FLT-MP10-ESC-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-ESC-002', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-18' }], mp25: [{ id: 'FLT-MP25-ESC-001', pesoOriginal: '0.5012 g', fechaCreacion: '2025-10-02' }] } };
+        // --- Datos base ---
+        const clientesData = { codelco: { nombre: 'CORP NACIONAL DEL COBRE DE CHILE', rut: '61704000-K', ols: [{ codigo: '801598', adc: 'kpizarro', atencionA: 'Juan Pérez', proyectos: ['Proyecto Chuquicamata', 'Proyecto Radomiro Tomic', 'Proyecto Ministro Hales'] }, { codigo: '801645', adc: 'mrodriguez', atencionA: 'María González', proyectos: ['Proyecto El Teniente', 'Proyecto Andina'] }] }, antofagasta: { nombre: 'ANTOFAGASTA MINERALS S.A.', rut: '96.955.310-7', ols: [{ codigo: '802105', adc: 'lmartinez', atencionA: 'Ana Rojas', proyectos: ['Proyecto Los Pelambres', 'Proyecto Centinela'] }] }, escondida: { nombre: 'MINERA ESCONDIDA LTDA', rut: '79.691.790-6', ols: [{ codigo: '803421', adc: 'rcastillo', atencionA: 'Luis Torres', proyectos: ['Proyecto Escondida Principal', 'Proyecto Escondida Norte'] }] } };
 
-            // --- Helpers ---
-            const qs = (s, c = document) => c.querySelector(s);
-            const qsa = (s, c = document) => Array.from(c.querySelectorAll(s));
+        const puntosMuestreoPorCliente = { codelco: [{ id: 'MPS-CDL-001', lugar: 'Planta Concentradora', direccion: 'Sector Norte, Chuquicamata', coordenadas: '-22.3095, -68.9029' }, { id: 'MPS-CDL-002', lugar: 'Área de Chancado', direccion: 'Sector Este, Chuquicamata', coordenadas: '-22.3105, -68.9039' }, { id: 'MPS-CDL-003', lugar: 'Depósito de Relaves', direccion: 'Sector Sur, El Teniente', coordenadas: '-34.0895, -70.4512' }], antofagasta: [{ id: 'MPS-ANT-001', lugar: 'Planta de Procesos', direccion: 'Los Pelambres, Salamanca', coordenadas: '-31.7321, -70.5689' }, { id: 'MPS-ANT-002', lugar: 'Tranque de Relaves', direccion: 'Sector El Mauro', coordenadas: '-31.8456, -70.4521' }], escondida: [{ id: 'MPS-ESC-001', lugar: 'Mina Rajo Abierto', direccion: 'Escondida, Antofagasta', coordenadas: '-24.2345, -69.0567' }, { id: 'MPS-ESC-002', lugar: 'Puerto de Embarque', direccion: 'Coloso, Antofagasta', coordenadas: '-23.7521, -70.4456' }] };
 
-            // --- Estado ---
-            let puntosSeleccionados = [];
-            let clienteActual = '';
+        const filtrosPorCliente = { codelco: { mp10: [{ id: 'FLT-MP10-CDL-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP10-CDL-002', pesoOriginal: '0.5198 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-CDL-003', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-15' }], mp25: [{ id: 'FLT-MP25-CDL-001', pesoOriginal: '0.4987 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP25-CDL-002', pesoOriginal: '0.5012 g', fechaCreacion: '2025-09-20' }] }, antofagasta: { mp10: [{ id: 'FLT-MP10-ANT-001', pesoOriginal: '0.5245 g', fechaCreacion: '2025-10-03' }, { id: 'FLT-MP10-ANT-002', pesoOriginal: '0.5212 g', fechaCreacion: '2025-10-04' }], mp25: [{ id: 'FLT-MP25-ANT-001', pesoOriginal: '0.5023 g', fechaCreacion: '2025-10-03' }] }, escondida: { mp10: [{ id: 'FLT-MP10-ESC-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-ESC-002', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-18' }], mp25: [{ id: 'FLT-MP25-ESC-001', pesoOriginal: '0.5012 g', fechaCreacion: '2025-10-02' }] } };
 
-            // --- Funciones de Renderizado ---
-            function mostrarResumen(datos) {
-                const container = qs('#readonly-view');
-                const info = clientesData[datos.cliente];
-                const fAhora = new Date().toLocaleString('es-CL');
-                const fHoy = new Date().toLocaleDateString('es-CL');
-                const [k, i] = datos.ol.split('-');
-                const olCodigo = info.ols[parseInt(i, 10)].codigo;
+        // --- Estado ---
+        let puntosSeleccionados = []; let clienteActual = '';
 
-                const muestrasHTML = datos.puntosSeleccionados.map((p, idx) => {
-                    const ini = p.fechaInicio && p.horaInicio ? `${p.fechaInicio} ${p.horaInicio}` : p.fechaInicio || '';
-                    const fin = p.fechaTermino && p.horaTermino ? `${p.fechaTermino} ${p.horaTermino}` : p.fechaTermino || '';
-                    const lugar = p.tipo === 'filtro' ? (p.lugarMuestreo || '') : `<div style="font-weight:500;">${p.lugar}</div><div style="font-size:11px;color:#666;">${p.direccion}</div>`;
-                    const det = p.tipo === 'filtro' ? `<div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div>` : '';
-                    const comentario = p.comentario && p.comentario.trim() ? p.comentario : 'Sin comentario';
-                    
-                    let aceptadaTag = '';
-                    let jobTexto = p.job || 'N/A';
+        // --- Helpers ---
+        const qs = (s, c = document) => c.querySelector(s), qsa = (s, c = document) => Array.from(c.querySelectorAll(s));
+        const setVisible = (el, show) => el.style.display = show ? '' : 'none';
+        const modal = qs('#modalPuntos');
 
-                    if (datos.estado === 'Recepcionado' || datos.estado === 'Finalizado') {
-                        const aceptada = Math.random() > 0.2; // 80% de probabilidad de ser aceptada
-                        const clase = aceptada ? 'si' : 'no';
-                        const texto = aceptada ? 'Aceptada' : 'No Aceptada';
-                        aceptadaTag = `<span class="muestra-aceptada-tag ${clase}">${texto}</span>`;
-                    } else if (datos.estado === 'Por Ingresar') {
-                        aceptadaTag = `<span class="muestra-aceptada-tag pendiente">Pendiente</span>`;
-                        jobTexto = 'Pendiente';
-                    }
-                    
-                    return `
-                        <div class="readonly-muestra-card">
-                            <div class="readonly-muestra-header">
-                                <div class="readonly-muestra-index">${idx + 1}</div>
-                                <div class="readonly-muestra-id">
-                                    ${p.id}
-                                    ${det}
-                                </div>
-                                ${aceptadaTag}
-                            </div>
-                            <div class="readonly-muestra-body">
-                                <div class="readonly-muestra-item"><i class="fas fa-map-marker-alt"></i> <strong>Lugar:</strong> ${p.tipo === 'filtro' ? (p.lugarMuestreo || 'N/A') : p.lugar}</div>
-                                <div class="readonly-muestra-item"><i class="fas fa-calendar-alt"></i> <strong>Inicio:</strong> ${ini || 'N/A'}</div>
-                                <div class="readonly-muestra-item"><i class="fas fa-calendar-check"></i> <strong>Término:</strong> ${fin || 'N/A'}</div>
-                                <div class="readonly-muestra-item"><i class="fas fa-barcode"></i> <strong>JOB:</strong> ${jobTexto}</div>
-                                <div class="readonly-muestra-item"><i class="fas fa-comment"></i> <strong>Comentario:</strong> ${comentario}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+        // --- Tabla puntos ---
+        function actualizarTablaPuntos() {
+            const tbody = qs('#tablaPuntosSeleccionados'), contador = qs('#contadorMuestras');
+            if (!puntosSeleccionados.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="padding:20px;color:#999;text-align:center">No hay puntos seleccionados</td></tr>';
+                contador.textContent = '0'; return;
+            }
+            tbody.innerHTML = ''; contador.textContent = String(puntosSeleccionados.length);
+            puntosSeleccionados.forEach((p, index) => {
+                const tr = document.createElement('tr');
+                if (p.tipo === 'filtro') {
+                    tr.innerHTML = `<td style="text-align:center;font-weight:bold;">${index + 1}</td>
+              <td><div style="font-weight:500;">${p.id}</div>
+                  <div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div></td>
+              <td><input type="text" class="form-control" style="font-size:12px;" value="${p.lugarMuestreo || ''}" data-idx="${index}" data-field="lugarMuestreo" placeholder="Ingrese lugar"></td>
+              <td><input type="date" class="form-control" style="display:inline-block;width:48%;margin-right:2%;font-size:12px;" value="${p.fechaInicio || ''}" data-idx="${index}" data-type="filtro" data-field="fechaInicio">
+                  <input type="time" class="form-control" style="display:inline-block;width:48%;font-size:12px;" value="${p.horaInicio || ''}" data-idx="${index}" data-type="filtro" data-field="horaInicio"></td>
+              <td><input type="date" class="form-control" style="display:inline-block;width:48%;margin-right:2%;font-size:12px;" value="${p.fechaTermino || ''}" data-idx="${index}" data-type="filtro" data-field="fechaTermino">
+                  <input type="time" class="form-control" style="display:inline-block;width:48%;font-size:12px;" value="${p.horaTermino || ''}" data-idx="${index}" data-type="filtro" data-field="horaTermino"></td>
+              <td style="text-align:center;"><button class="btn-comentario ${p.comentario && p.comentario.trim() ? 'has-comment' : ''}" data-comment-idx="${index}" title="${p.comentario && p.comentario.trim() ? 'Ver/Editar comentario' : 'Agregar comentario'}"><i class="fas ${p.comentario && p.comentario.trim() ? 'fa-comment' : 'fa-comment-dots'}"></i></button></td>
+              <td style="text-align:center;"><button class="btn-eliminar" data-remove="${index}"><i class="fas fa-trash"></i></button></td>`;
+                } else {
+                    tr.innerHTML = `<td style="text-align:center;font-weight:bold;">${index + 1}</td>
+              <td>${p.id}</td>
+              <td><div style="font-weight:500;">${p.lugar}</div><div style="font-size:11px;color:#666;">${p.direccion}</div></td>
+              <td><input type="date" class="form-control" style="display:inline-block;width:48%;margin-right:2%;font-size:12px;" value="${p.fechaInicio || ''}" data-idx="${index}" data-type="mps" data-field="fechaInicio">
+                  <input type="time" class="form-control" style="display:inline-block;width:48%;font-size:12px;" value="${p.horaInicio || ''}" data-idx="${index}" data-type="mps" data-field="horaInicio"></td>
+              <td><input type="date" class="form-control" style="display:inline-block;width:48%;margin-right:2%;font-size:12px;" value="${p.fechaTermino || ''}" data-idx="${index}" data-type="mps" data-field="fechaTermino">
+                  <input type="time" class="form-control" style="display:inline-block;width:48%;font-size:12px;" value="${p.horaTermino || ''}" data-idx="${index}" data-type="mps" data-field="horaTermino"></td>
+              <td style="text-align:center;"><button class="btn-comentario ${p.comentario && p.comentario.trim() ? 'has-comment' : ''}" data-comment-idx="${index}" title="${p.comentario && p.comentario.trim() ? 'Ver/Editar comentario' : 'Agregar comentario'}"><i class="fas ${p.comentario && p.comentario.trim() ? 'fa-comment' : 'fa-comment-dots'}"></i></button></td>
+              <td style="text-align:center;"><button class="btn-eliminar" data-remove="${index}"><i class="fas fa-trash"></i></button></td>`;
+                }
+                tbody.appendChild(tr);
+            });
+        }
 
-                const html = `
-                    <div class="card"><div class="card-content"><h2 style="color:#ef8157;font-size:20px;margin-bottom:0"># Folio ${datos.folio}</h2></div></div>
-                    <div class="card"><div class="card-content"><h5>Información general del cliente</h5><div class="row mb-3"><div class="col-md-6"><label>Cliente</label><div class="info-value">${info.rut} - ${info.nombre}</div></div><div class="col-md-6"><label>OL</label><div class="info-value">${olCodigo}</div></div></div><div class="row mb-3"><div class="col-md-12"><label>Proyecto</label><div class="info-value">${datos.proyecto || 'Default project'}</div></div></div><div class="row mb-3"><div class="col-md-4"><label>Solicitado por:</label><div class="info-value">${datos.solicitadoPor}</div></div><div class="col-md-4"><label>Atención a:</label><div class="info-value">${datos.atencionA}</div></div><div class="col-md-4"><label>ADC Responsable:</label><div class="info-value">${datos.adcResponsable}</div></div></div></div></div>
-                    <div class="card"><div class="card-content"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h5 class="mb-0">Información general</h5><div style="display:flex;align-items:center;gap:15px"><span class="badge-ingresado">${datos.estado.toUpperCase()}</span><span style="font-size:14px;color:#666">Fecha: ${fHoy}</span></div></div><div class="row mb-3"><div class="col-md-6"><label>Tipo Muestreo</label><div class="info-value">${datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'}</div></div>${datos.tipoMuestreo === 'filtro' && datos.tipoFiltro ? `<div class="col-md-6"><label>Tipo de Filtro</label><div class="info-value">${datos.tipoFiltro.toUpperCase()}</div></div>`: '<div class="col-md-6"></div>'}</div><div class="row mb-3"><div class="col-md-6"><label>Muestreado por:</label><div class="info-value">${datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'Cliente'}</div></div><div class="col-md-6"><label>Matriz</label><div class="info-value">${datos.matriz}</div></div></div><div class="row mb-3"><div class="col-md-12"><label>Plan</label><div class="info-value">${datos.plan}</div></div></div><div class="row"><div class="col-md-12"><label>Generación de JOB</label><div class="info-value">${datos.generacionJob === 'total' ? 'Generar un JOB para la totalidad de los puntos ingresados' : 'Generar un JOB por punto ingresado'}</div></div></div></div></div>
-                    <div class="card"><div class="card-content"><h5>Puntos de Muestreo</h5><div class="readonly-muestras-list">${muestrasHTML}</div><div class="row mb-3 mt-4"><div class="col-md-12"><strong>Cantidad de muestras ingresadas: ${datos.puntosSeleccionados.length}</strong></div></div><div class="row mb-3"><div class="col-md-4"><label>Responsable de Muestreo</label><div class="info-value">${datos.responsable}</div></div><div class="col-md-4"><label>Fecha Transporte</label><div class="info-value">${datos.fechaTransporte}</div></div><div class="col-md-4"><label>Hora Transporte</label><div class="info-value">${datos.horaTransporte}</div></div></div><div class="row"><div class="col-md-12"><label>Observaciones de terreno</label><div class="info-value">${datos.observaciones}</div></div></div></div></div>
-                    <div class="card"><div class="card-content"><div class="timeline-badge">TIME LINE</div><div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-icon pre-ingreso"><i class="fas fa-file-alt"></i></div>
-                            <div class="timeline-card"><div class="timeline-card-header">PRE-INGRESO</div><div class="timeline-card-body"><p><strong>Fecha:</strong> ${fAhora}</p><p><strong>Usuario:</strong> ${datos.solicitadoPor}</p><p><strong>Obser.:</strong> ${datos.observaciones}</p><a href="#" class="link-descarga" id="btnDescargarActa"><i class="fas fa-download"></i> DESCARGAR ACTA DE PRE-INGRESO</a></div></div>
-                        </div>
-                        ${(datos.estado === 'Recepcionado' || datos.estado === 'Finalizado') ? `
-                        <div class="timeline-item">
-                            <div class="timeline-icon recepcion"><i class="fas fa-box"></i></div>
-                            <div class="timeline-card"><div class="timeline-card-header">RECEPCIÓN</div><div class="timeline-card-body"><p><strong>Fecha:</strong> ${fAhora}</p><a href="#" class="link-descarga"><i class="fas fa-download"></i> DESCARGAR CADENA DE CUSTODIA</a></div></div>
-                        </div>` : ''}
-                    </div></div></div>
-                    <div style="text-align:center;margin:30px 0;color:#999;font-size:12px">SGS</div>
-                `;
+        function eliminarPunto(i) { puntosSeleccionados.splice(i, 1); actualizarTablaPuntos() }
 
-                container.innerHTML = html;
-                qs('#btnDescargarActa').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    generarPDFActa(datos);
+        // --- Modales ---
+        function abrirModalMPS() {
+            const titulo = qs('#modalPuntosTitulo'), tbody = qs('#tablaPuntosModal'), thead = qs('#modalTableHeader'), pts = puntosMuestreoPorCliente[clienteActual] || [];
+            titulo.textContent = 'Seleccionar Puntos de Muestreo MPS';
+            
+            // Agregar botones si no existen
+            let searchDiv = qs('.modal-search');
+            let actionsDiv = qs('.modal-search-actions');
+            
+            if (!actionsDiv) {
+                // Mover input de búsqueda a nuevo contenedor
+                const searchInput = qs('#searchPuntos');
+                actionsDiv = document.createElement('div');
+                actionsDiv.className = 'modal-search-actions';
+                actionsDiv.appendChild(searchInput);
+                
+                // Agregar botones
+                const btnNuevo = document.createElement('button');
+                btnNuevo.className = 'btn-nuevo-punto';
+                btnNuevo.id = 'btnNuevoPunto';
+                btnNuevo.textContent = 'Nuevo Punto';
+                
+                const btnMasivo = document.createElement('button');
+                btnMasivo.className = 'btn-nuevo-punto';
+                btnMasivo.id = 'btnMasivo';
+                btnMasivo.textContent = 'Masivo';
+                
+                actionsDiv.appendChild(btnNuevo);
+                actionsDiv.appendChild(btnMasivo);
+                
+                searchDiv.parentNode.insertBefore(actionsDiv, searchDiv);
+                searchDiv.style.display = 'none';
+            }
+            actionsDiv.style.display = 'flex';
+            
+            thead.innerHTML = '<th style="width:50px"><input type="checkbox" id="selectAll"></th><th>ID MUESTRA</th><th>LUGAR / DIRECCIÓN</th><th>COORDENADAS</th>';
+            tbody.innerHTML = '';
+            pts.forEach((p, idx) => {
+                const ya = puntosSeleccionados.some(x => x.id === p.id);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><input type="checkbox" class="checkbox-punto" data-index="${idx}" data-tipo="mps" ${ya ? 'checked' : ''}></td>
+                          <td>${p.id}</td>
+                          <td><div><strong>${p.lugar}</strong></div><div style="font-size:11px;color:#666;">${p.direccion}</div></td>
+                          <td>${p.coordenadas}</td>`;
+                tbody.appendChild(tr);
+            });
+            modal.classList.add('show');
+        }
+
+        function abrirModalFiltros(tipoFiltro) {
+            const titulo = qs('#modalPuntosTitulo'), tbody = qs('#tablaPuntosModal'), thead = qs('#modalTableHeader'), arr = (filtrosPorCliente[clienteActual] || {})[tipoFiltro] || [];
+            titulo.textContent = `Seleccionar Filtros ${tipoFiltro.toUpperCase()}`;
+            
+            // Ocultar botones en modo filtros
+            const actionsDiv = qs('.modal-search-actions');
+            if (actionsDiv) actionsDiv.style.display = 'none';
+            qs('.modal-search').style.display = 'block';
+            thead.innerHTML = '<th style="width:50px"><input type="checkbox" id="selectAll"></th><th>ID FILTRO</th><th>FECHA CREACIÓN</th><th>ESTADO</th>';
+            tbody.innerHTML = '';
+            const hoy = new Date();
+            arr.forEach((f, idx) => {
+                const ya = puntosSeleccionados.some(x => x.id === f.id);
+                const d = new Date(f.fechaCreacion), dias = Math.floor((hoy - d) / 86400000);
+                let estado = '', ok = true;
+                if (dias > 30) { estado = '<span style="color:#e74c3c;font-weight:bold;">⚠ Vida útil excedida</span>'; ok = false }
+                else if (dias > 25) { estado = '<span style="color:#f39c12;font-weight:bold;">⚠ Próximo a vencer</span>' }
+                else { estado = '<span style="color:#27ae60;">✓ Disponible</span>' }
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td><input type="checkbox" class="checkbox-punto" data-index="${idx}" data-tipo="filtro" ${ya ? 'checked' : ''} ${!ok ? 'disabled' : ''}></td>
+                          <td>${f.id}</td>
+                          <td>${f.fechaCreacion}<br><small style="color:#666;">(${dias} días)</small></td>
+                          <td>${estado}</td>`;
+                if (!ok) tr.style.opacity = '.5';
+                tbody.appendChild(tr);
+            });
+            modal.classList.add('show');
+        }
+
+        function cerrarModalPuntos() { modal.classList.remove('show') }
+
+
+        // ===== FUNCIONALIDAD DE COMENTARIOS =====
+        let comentarioActualIdx = -1;
+        let modalComentario;
+        let textareaComentario;
+
+        // Abrir modal de comentarios
+        function abrirModalComentario(idx) {
+            comentarioActualIdx = idx;
+            const punto = puntosSeleccionados[idx];
+            textareaComentario.value = punto.comentario || '';
+            modalComentario.classList.add('show');
+            textareaComentario.focus();
+        }
+
+        // Cerrar modal de comentarios
+        function cerrarModalComentario() {
+            modalComentario.classList.remove('show');
+            textareaComentario.value = '';
+            comentarioActualIdx = -1;
+        }
+
+        // Guardar comentario
+        function guardarComentario() {
+            if (comentarioActualIdx >= 0 && comentarioActualIdx < puntosSeleccionados.length) {
+                puntosSeleccionados[comentarioActualIdx].comentario = textareaComentario.value.trim();
+                actualizarTablaPuntos();
+                cerrarModalComentario();
+            }
+        }
+        // ===== FIN FUNCIONALIDAD DE COMENTARIOS =====
+
+
+        // ===== FUNCIONALIDAD AGREGAR NUEVO PUNTO MPS =====
+        let modalAgregarPunto;
+
+        // Abrir modal agregar punto
+        function abrirModalAgregarPunto() {
+            // Cargar lugares de monitoreo según cliente
+            const selectLugar = qs('#lugarMonitoreoNuevoPunto');
+            selectLugar.innerHTML = '<option value="">Seleccione un lugar</option>';
+            
+            if (clienteActual && clientesData[clienteActual]) {
+                const cliente = clientesData[clienteActual];
+                
+                // Agregar proyectos como lugares
+                cliente.ols.forEach(ol => {
+                    ol.proyectos.forEach(proyecto => {
+                        const option = document.createElement('option');
+                        option.value = proyecto;
+                        option.textContent = proyecto;
+                        selectLugar.appendChild(option);
+                    });
                 });
             }
+            
+            // Preseleccionar matriz del paso 1
+            const matrizPaso1 = qs('#matriz').value;
+            qs('#matrizNuevoPunto').value = matrizPaso1 || '';
+            
+            // Limpiar campos
+            qs('#nombrePuntoNuevo').value = '';
+            qs('#direccionMonitoreoNuevo').value = '';
+            
+            modalAgregarPunto.classList.add('show');
+        }
 
-            function generarPDFActa(datos) {
-                // Implementación de la generación de PDF...
-                alert('Generando PDF del Acta...');
+        // Cerrar modal agregar punto
+        function cerrarModalAgregarPunto() {
+            modalAgregarPunto.classList.remove('show');
+        }
+
+        // Guardar nuevo punto
+        function guardarNuevoPunto() {
+            const matriz = qs('#matrizNuevoPunto').value;
+            const lugar = qs('#lugarMonitoreoNuevoPunto').value;
+            const nombre = qs('#nombrePuntoNuevo').value.trim();
+            const direccion = qs('#direccionMonitoreoNuevo').value.trim();
+            
+            // Validar campos
+            if (!matriz) {
+                alert('Por favor, seleccione una matriz');
+                return;
             }
+            if (!lugar) {
+                alert('Por favor, seleccione un lugar de monitoreo');
+                return;
+            }
+            if (!nombre) {
+                alert('Por favor, ingrese el nombre del punto');
+                return;
+            }
+            if (!direccion) {
+                alert('Por favor, ingrese la dirección de monitoreo');
+                return;
+            }
+            
+            // Crear nuevo punto con mapeo correcto
+            const nuevoPunto = {
+                id: nombre,                    // Nombre del punto → ID Muestra
+                lugar: lugar,                  // Lugar de Monitoreo → Lugar en grilla
+                direccion: direccion,          // Dirección → Dirección en grilla
+                coordenadas: 'N/A',
+                tipo: 'mps'
+            };
+            
+            // Agregar a la lista de puntos del cliente
+            if (!puntosMuestreoPorCliente[clienteActual]) {
+                puntosMuestreoPorCliente[clienteActual] = [];
+            }
+            puntosMuestreoPorCliente[clienteActual].push(nuevoPunto);
+            
+            // Cerrar modal
+            cerrarModalAgregarPunto();
+            
+            // Refrescar la lista de puntos en el modal principal
+            abrirModalMPS();
+            
+            // Mostrar mensaje de éxito
+            alert('Punto de muestreo agregado exitosamente');
+        }
+        // ===== FIN FUNCIONALIDAD AGREGAR NUEVO PUNTO =====
 
-            // --- Lógica de Inicialización ---
-            function initReadonlyMode() {
-                const params = new URLSearchParams(window.location.search);
-                const folio = params.get('folio') || 'N/A';
-                const tipoMuestra = params.get('tipo-muestra') || 'MPS';
-                const estado = params.get('estado') || 'Finalizado';
-                const numMuestras = parseInt(params.get('numero-muestras'), 10) || 5;
-                const matriz = params.get('matriz') || 'POLVO_SEDIMENTABLE';
+        // ===== MODAL MASIVO (SOLO VISUAL) =====
+        let modalAgregarMasivo;
 
-                const lugaresMuestreoFiltro = ['Casino Central', 'Garita Acceso Norte', 'Taller de Mantención', 'Oficinas Administrativas', 'Bodega Principal'];
-
-                const mockPuntos = [];
-                for (let i = 0; i < numMuestras; i++) {
-                    mockPuntos.push({
-                        id: `${tipoMuestra}-${folio}-${String(i + 1).padStart(3, '0')}`,
-                        lugar: `Punto de Muestreo #${i + 1}`,
-                        direccion: `Sector ${String.fromCharCode(65 + i)}`,
-                        lugarMuestreo: lugaresMuestreoFiltro[i % lugaresMuestreoFiltro.length], // Asignación aleatoria
-                        tipo: tipoMuestra.toLowerCase() === 'mps' ? 'mps' : 'filtro',
-                        tipoFiltro: tipoMuestra.toLowerCase() === 'filtro' ? (i % 2 === 0 ? 'MP10' : 'MP2.5') : null,
-                        fechaCreacion: '2025-10-01',
-                        job: `EA25-0${8458 + i}`,
-                        fechaInicio: '2025-10-10',
-                        horaInicio: '09:00',
-                        fechaTermino: '2025-10-10',
-                        horaTermino: '17:00',
-                        comentario: i % 3 === 0 ? 'Muestra en condiciones óptimas.' : ''
+        function abrirModalMasivo() {
+            // Preseleccionar matriz del paso 1
+            const matrizPaso1 = qs('#matriz').value;
+            qs('#matrizMasivo').value = matrizPaso1 || '';
+            
+            // Cargar lugares de monitoreo
+            const selectLugar = qs('#lugarMonitoreoMasivo');
+            selectLugar.innerHTML = '<option value="">Seleccione un lugar</option>';
+            
+            if (clienteActual && clientesData[clienteActual]) {
+                const cliente = clientesData[clienteActual];
+                cliente.ols.forEach(ol => {
+                    ol.proyectos.forEach(proyecto => {
+                        const option = document.createElement('option');
+                        option.value = proyecto;
+                        option.textContent = proyecto;
+                        selectLugar.appendChild(option);
                     });
+                });
+            }
+            
+            // Limpiar textarea
+            qs('#dataMasivo').value = '';
+            
+            modalAgregarMasivo.classList.add('show');
+        }
+
+        function cerrarModalMasivo() {
+            modalAgregarMasivo.classList.remove('show');
+        }
+        // ===== FIN MODAL MASIVO =====
+
+        // ===== GENERAR PDF ACTA DE PRE-INGRESO =====
+        function generarPDFActa() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Obtener datos guardados
+            const folio = sessionStorage.getItem('folioPreIngreso');
+            const datosStr = sessionStorage.getItem('datosPreIngreso');
+            if (!folio || !datosStr) {
+                alert('No hay datos de pre-ingreso para generar el PDF');
+                return;
+            }
+            
+            const datos = JSON.parse(datosStr);
+            const cliente = clientesData[clienteActual];
+            const olSeleccionada = datos.ol.split('-');
+            const ol = cliente.ols[parseInt(olSeleccionada[1], 10)];
+            
+            let y = 20;
+            
+            // Título
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text(`ACTA DE PRE-INGRESO N° ${folio}`, 105, y, { align: 'center' });
+            y += 12;
+            
+            // Información Cliente
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Información Cliente', 20, y);
+            doc.setDrawColor(0);
+            doc.setLineWidth(0.5);
+            doc.line(20, y + 1, 190, y + 1);
+            y += 7;
+            
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text('SOLICITANTE', 20, y);
+            doc.text(': ' + cliente.nombre, 70, y);
+            y += 5;
+            doc.text('ADC Responsable', 20, y);
+            doc.text(': ' + datos.adcResponsable, 70, y);
+            y += 5;
+            doc.text('OL', 20, y);
+            doc.text(': ' + ol.codigo, 70, y);
+            y += 5;
+            doc.text('Contacto', 20, y);
+            doc.text(': ' + datos.atencionA, 70, y);
+            y += 8;
+            
+            // Información General
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Información General', 20, y);
+            doc.line(20, y + 1, 190, y + 1);
+            y += 7;
+            
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Tipo de muestra', 20, y);
+            doc.text(': ' + (datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'), 70, y);
+            y += 5;
+            doc.text('Origen de las muestras (Matriz)', 20, y);
+            doc.text(': ' + datos.matriz, 70, y);
+            y += 5;
+            doc.text('Muestreados por', 20, y);
+            doc.text(': ' + (datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'CLIENTE'), 70, y);
+            y += 5;
+            doc.text('Destino de la muestra', 20, y);
+            doc.text(': Laboratorio SGS Santiago', 70, y);
+            y += 5;
+            doc.text('Número de muestras', 20, y);
+            doc.text(': ' + datos.puntosSeleccionados.length, 70, y);
+            y += 5;
+            doc.text('Plan', 20, y);
+            doc.text(': ' + datos.plan, 70, y);
+            y += 5;
+            doc.text('Generación de JOB', 20, y);
+            const jobText = datos.generacionJob === 'total' 
+                ? 'Generar un JOB para la totalidad de los puntos ingresados' 
+                : 'Generar un JOB por punto ingresado';
+            doc.text(': ' + jobText, 70, y);
+            y += 8;
+            
+            // Puntos de Monitoreo
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Puntos de Monitoreo', 20, y);
+            doc.line(20, y + 1, 190, y + 1);
+            y += 5;
+            
+            const tablaPuntos = [];
+            datos.puntosSeleccionados.forEach((p, idx) => {
+                // ID MUESTRA
+                let idMuestra = p.id || 'N/A';
+                if (p.tipo === 'filtro') {
+                    idMuestra += `\nFiltro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}`;
                 }
-
-                const mockData = {
-                    folio,
-                    estado,
-                    cliente: 'codelco',
-                    ol: 'codelco-0',
-                    puntosSeleccionados: mockPuntos,
-                    tipoMuestreo: tipoMuestra.toLowerCase(),
-                    tipoFiltro: tipoMuestra.toLowerCase() === 'filtro' ? (Math.random() < 0.5 ? 'mp10' : 'mp2.5') : null,
-                    matriz: matriz,
-                    muestreadoPor: 'sgs',
-                    plan: 'AIRE_001_A',
-                    responsable: 'Juan Pérez',
-                    fechaTransporte: '2025-10-11',
-                    horaTransporte: '10:00',
-                    observaciones: 'Observación de solo lectura.',
-                    generacionJob: 'individual',
-                    proyecto: 'Proyecto de Lectura',
-                    solicitadoPor: 'gnunovero',
-                    atencionA: 'Gerencia de Operaciones',
-                    adcResponsable: 'kpizarro'
-                };
-
-                qs('#form-view').style.display = 'none';
-                const readonlyContainer = qs('#readonly-view');
-                readonlyContainer.style.display = 'block';
-                mostrarResumen(mockData);
-
-                qs('#btnBack').addEventListener('click', () => { window.location.href = 'ingreso-aire.html'; });
-            }
-
-            function initFormMode() {
-                // Lógica para inicializar el formulario editable
-                // (Todo el código que estaba antes en DOMContentLoaded)
-                let puntosSeleccionados = [];
-                let clienteActual = '';
-                const modal = qs('#modalPuntos');
-                let comentarioActualIdx = -1;
-                let modalComentario = qs('#modalComentario');
-                let textareaComentario = qs('#textareaComentario');
-                let modalAgregarPunto = qs('#modalAgregarPunto');
-                let modalAgregarMasivo = qs('#modalAgregarMasivo');
-
-                // ... (el resto de las funciones como actualizarTablaPuntos, abrirModalMPS, etc. irían aquí)
-                // Por brevedad, se omite el código idéntico que ya estaba.
-                // Solo se muestra la estructura y los listeners.
-
-                qs('#btnBack').addEventListener('click', () => { window.location.href = 'ingreso-aire.html'; });
-                qs('#btnSalir').addEventListener('click', e => { e.preventDefault(); alert('Cerrando sesión...') });
-                qs('#selectCliente').addEventListener('change', (e) => { /* ... */ });
-                // ... resto de listeners del formulario
-            }
-
-            // --- Punto de Entrada ---
-            window.addEventListener('pageshow', function(event) {
-                const params = new URLSearchParams(window.location.search);
-                if (params.get('readonly') === 'true') {
-                    initReadonlyMode();
+                
+                // LUGAR DE MUESTREO
+                let lugarMuestreo = '';
+                if (p.tipo === 'filtro') {
+                    lugarMuestreo = p.lugarMuestreo || '';
                 } else {
-                    // Aquí iría la inicialización del formulario editable
-                    // initFormMode(); // Descomentar cuando se mueva la lógica del formulario aquí
+                    lugarMuestreo = p.lugar || 'N/A';
+                    if (p.direccion) {
+                        lugarMuestreo += `\n${p.direccion}`;
+                    }
+                }
+                
+                // FECHA/HORA INICIO
+                const fechaInicio = p.fechaInicio && p.horaInicio 
+                    ? `${p.fechaInicio} ${p.horaInicio}` 
+                    : p.fechaInicio || '';
+                
+                // FECHA/HORA TÉRMINO
+                const fechaTermino = p.fechaTermino && p.horaTermino 
+                    ? `${p.fechaTermino} ${p.horaTermino}` 
+                    : p.fechaTermino || '';
+                
+                // COMENTARIOS
+                const comentario = p.comentario && p.comentario.trim() 
+                    ? p.comentario 
+                    : 'Sin comentario';
+                
+                tablaPuntos.push([
+                    idx + 1, 
+                    idMuestra, 
+                    lugarMuestreo, 
+                    fechaInicio, 
+                    fechaTermino,
+                    comentario
+                ]);
+            });
+            
+            doc.autoTable({
+                startY: y,
+                head: [['#', 'ID MUESTRA', 'LUGAR DE MUESTREO', 'FECHA/HORA INICIO', 'FECHA/HORA TÉRMINO', 'COMENTARIOS']],
+                body: tablaPuntos,
+                theme: 'grid',
+                styles: { 
+                    fontSize: 7, 
+                    cellPadding: 2,
+                    lineColor: [200, 200, 200],
+                    lineWidth: 0.1
+                },
+                headStyles: { 
+                    fillColor: [240, 240, 240], 
+                    textColor: [0, 0, 0], 
+                    fontStyle: 'bold',
+                    fontSize: 7
+                },
+                columnStyles: {
+                    0: { cellWidth: 8, halign: 'center' },
+                    1: { cellWidth: 35 },
+                    2: { cellWidth: 35 },
+                    3: { cellWidth: 32 },
+                    4: { cellWidth: 32 },
+                    5: { cellWidth: 38 }
                 }
             });
+            
+            y = doc.lastAutoTable.finalY + 8;
+            
+            // Información adicional
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Fecha de Transporte', 20, y);
+            doc.text(': ' + datos.fechaTransporte + ' ' + datos.horaTransporte, 70, y);
+            y += 5;
+            doc.text('Responsable del monitoreo', 20, y);
+            doc.text(': ' + datos.responsable, 70, y);
+            y += 5;
+            doc.text('Observaciones de Terreno', 20, y);
+            doc.text(': ' + datos.observaciones, 70, y);
+            y += 15;
+            
+            // Footer
+            doc.setFontSize(7);
+            doc.setTextColor(100);
+            const footerY = 280;
+            doc.text('SGS Chile Ltda. Santiago: Puerto Madero #130, Pudahuel | Antofagasta: Av. Pedro Aguirre Cerda #7367 | Concepción: Av. Américo Vespucio #820 | Pto. Varas: Ruta 5 Sur KM 103', 105, footerY, { align: 'center' });
+            doc.text('T (56-2) 289 89500, (56-2) 289 89512, (56-55) 223 4098, (56-55) 223 4596, (56-41) 241 6577, (56-65) 232 1800, (56-2) 232 1801. www.sgs.com', 105, footerY + 3, { align: 'center' });
+            
+            // Descargar
+            doc.save(`Acta_PreIngreso_${folio}.pdf`);
+        }
+        // ===== FIN GENERAR PDF =====
 
-            // Código del formulario que se ejecuta siempre
-            // (Este es el código que estaba antes en DOMContentLoaded)
-            // Por ahora lo dejamos aquí para que el formulario siga funcionando
-            // Idealmente, se movería a initFormMode()
-            const params = new URLSearchParams(window.location.search);
-            const isReadonly = params.get('readonly') === 'true';
 
-            if (isReadonly) {
-                initReadonlyMode();
+        function confirmarSeleccion() {
+            if (!clienteActual) return;
+            const tipo = qs('input[name="tipoMuestreo"]:checked').value;
+            const checks = qsa('.checkbox-punto:checked:not(:disabled)', modal);
+            puntosSeleccionados = [];
+            if (tipo === 'filtros') {
+                const tf = qs('input[name="tipoFiltro"]:checked').value;
+                const arr = (filtrosPorCliente[clienteActual] || {})[tf] || [];
+                checks.forEach(ch => {
+                    const i = parseInt(ch.dataset.index, 10), f = arr[i];
+                    puntosSeleccionados.push({ ...f, tipo: 'filtro', tipoFiltro: tf, lugarMuestreo: '', fechaInicio: '', horaInicio: '', fechaTermino: '', horaTermino: '' })
+                });
             } else {
-                // initFormMode(); // Esto se ejecutaría si movemos el código del formulario
+                const arr = puntosMuestreoPorCliente[clienteActual] || [];
+                checks.forEach(ch => {
+                    const i = parseInt(ch.dataset.index, 10), p = arr[i];
+                    puntosSeleccionados.push({ ...p, tipo: 'mps', fechaInicio: '', horaInicio: '', fechaTermino: '', horaTermino: '' })
+                });
             }
+            actualizarTablaPuntos();
+            cerrarModalPuntos();
+        }
 
+        // --- Validaciones fecha/horas ---
+        function validarRangoFechas(fi, hi, ft, ht) {
+            if (!fi || !ft) return { ok: true };
+            const s = new Date(`${fi}T${hi || '00:00'}`), e = new Date(`${ft}T${ht || '00:00'}`);
+            return { ok: e >= s, start: s, end: e }
+        }
+
+        function onActualizarFecha(index, tipo, campo, valor) {
+            const p = puntosSeleccionados[index]; p[campo] = valor;
+            if (campo === 'fechaInicio') { p.fechaTermino = valor; actualizarTablaPuntos() }
+            const { ok, start, end } = validarRangoFechas(p.fechaInicio, p.horaInicio, p.fechaTermino, p.horaTermino);
+            if (!ok) {
+                alert('La fecha y hora de término no puede ser menor a la fecha y hora de inicio del muestreo');
+                if (campo === 'fechaTermino') p.fechaTermino = p.fechaInicio;
+                else if (campo === 'horaTermino') p.horaTermino = '';
+                actualizarTablaPuntos(); return;
+            }
+            if (tipo === 'filtro') {
+                if (campo === 'fechaInicio') {
+                    const fc = new Date(p.fechaCreacion), fi = new Date(valor), dias = Math.floor((fi - fc) / 86400000);
+                    if (dias > 30) alert(`⚠ ALERTA: La vida útil del filtro ${p.id} excede los 30 días.
+Días desde pre-pesado: ${dias} días
+Filtro creado: ${p.fechaCreacion}
+Inicio de muestreo: ${valor}`);
+                }
+                if (p.horaTermino && end) {
+                    const horas = (new Date() - end) / 3600000;
+                    if (horas > 96) alert(`⚠ ALERTA: Han transcurrido más de 96 horas desde el término del muestreo para el filtro ${p.id}.
+Horas transcurridas: ${Math.floor(horas)} horas`);
+                }
+            }
+        }
+
+        // --- Resumen (inyecta dentro de .content) ---
+        function mostrarResumen() {
+            // Ocultar cards del formulario y título principal
+            qsa('.content .card').forEach(c => c.style.display = 'none');
+            const h1 = qs('.content h1'); if (h1) h1.style.display = 'none';
+
+            const folio = sessionStorage.getItem('folioPreIngreso');
+            const datos = JSON.parse(sessionStorage.getItem('datosPreIngreso'));
+            const info = clientesData[datos.cliente];
+            const fAhora = new Date().toLocaleString('es-CL');
+            const fHoy = new Date().toLocaleDateString('es-CL');
+            const [k, i] = datos.ol.split('-');
+            const olCodigo = info.ols[parseInt(i, 10)].codigo;
+
+            const filas = datos.puntosSeleccionados.map((p, idx) => {
+                const ini = p.fechaInicio && p.horaInicio ? `${p.fechaInicio} ${p.horaInicio}` : p.fechaInicio || '';
+                const fin = p.fechaTermino && p.horaTermino ? `${p.fechaTermino} ${p.horaTermino}` : p.fechaTermino || '';
+                const lugar = p.tipo === 'filtro'
+                    ? (p.lugarMuestreo || '')
+                    : `<div style="font-weight:500;">${p.lugar}</div><div style="font-size:11px;color:#666;">${p.direccion}</div>`;
+                const det = p.tipo === 'filtro'
+                    ? `<div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div>`
+                    : '';
+                const comentario = p.comentario && p.comentario.trim() ? p.comentario : '<span style="color:#999;font-style:italic">Sin comentario</span>';
+                return `<tr>
+              <td style="text-align:center;font-weight:bold;">${idx + 1}</td>
+              <td>${p.id}${det}</td>
+              <td>${lugar}</td>
+              <td>${ini}</td>
+              <td>${fin}</td>
+              <td style="max-width: 300px; word-wrap: break-word;">${comentario}</td>
+            </tr>`;
+            }).join('');
+
+            const html = `
+          <div class="resumen-container" id="resumen" class="active">
+            <div class="resumen-header" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <i class="fas fa-wind" style="background:#ef8157;color:#fff;width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px"></i>
+                <span style="font-size:16px;color:#666">Ficha de Monitoreo</span>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button id="btnVolverFormulario" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Formulario</button>
+              </div>
+            </div>
+
+            <div class="card"><div class="card-content">
+              <h2 style="color:#ef8157;font-size:20px;margin-bottom:0"># Folio ${folio}</h2>
+            </div></div>
+
+            <div class="card"><div class="card-content">
+              <h5>Información general del cliente</h5>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label>Cliente</label>
+                  <div class="info-value">${info.rut} - ${info.nombre}</div>
+                </div>
+                <div class="col-md-6">
+                  <label>OL</label>
+                  <div class="info-value">${olCodigo}</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label>Proyecto</label>
+                  <div class="info-value">${datos.proyecto || 'Default project'}</div>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4"><label>Solicitado por:</label><div class="info-value">${datos.solicitadoPor}</div></div>
+                <div class="col-md-4"><label>Atención a:</label><div class="info-value">${datos.atencionA}</div></div>
+                <div class="col-md-4"><label>ADC Responsable:</label><div class="info-value">${datos.adcResponsable}</div></div>
+              </div>
+            </div></div>
+
+            <div class="card"><div class="card-content">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                <h5 class="mb-0">Información general</h5>
+                <div style="display:flex;align-items:center;gap:15px">
+                  <span class="badge-ingresado">INGRESADO</span>
+                  <span style="font-size:14px;color:#666">Fecha: ${fHoy}</span>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label>Tipo Muestreo</label>
+                  <div class="info-value">${datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'}</div>
+                </div>
+                ${datos.tipoMuestreo === 'filtros' && datos.tipoFiltro ? `
+                <div class="col-md-6">
+                  <label>Tipo de Filtro</label>
+                  <div class="info-value">${datos.tipoFiltro.toUpperCase()}</div>
+                </div>`: '<div class="col-md-6"></div>'}
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6"><label>Muestreado por:</label><div class="info-value">${datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'Cliente'}</div></div>
+                <div class="col-md-6"><label>Matriz</label><div class="info-value">${datos.matriz}</div></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-12"><label>Plan</label><div class="info-value">${datos.plan}</div></div>
+              </div>
+              <div class="row">
+                <div class="col-md-12"><label>Generación de JOB</label>
+                  <div class="info-value">${datos.generacionJob === 'total'
+                    ? 'Generar un JOB para la totalidad de los puntos ingresados'
+                    : 'Generar un JOB por punto ingresado'}</div>
+                </div>
+              </div>
+            </div></div>
+
+            <div class="card"><div class="card-content">
+              <h5>Puntos de Muestreo</h5>
+              <div class="table-responsive mb-3">
+                <table class="table">
+                  <thead>
+                    <tr><th style="width:50px">#</th><th>ID MUESTRA</th><th>LUGAR DE MUESTREO</th><th>FECHA/HORA INICIO</th><th>FECHA/HORA TÉRMINO</th><th>COMENTARIOS</th></tr>
+                  </thead>
+                  <tbody>${filas}</tbody>
+                </table>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-12"><strong>Cantidad de muestras ingresadas: ${datos.puntosSeleccionados.length}</strong></div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-4"><label>Responsable de Muestreo</label><div class="info-value">${datos.responsable}</div></div>
+                <div class="col-md-4"><label>Fecha Transporte</label><div class="info-value">${datos.fechaTransporte}</div></div>
+                <div class="col-md-4"><label>Hora Transporte</label><div class="info-value">${datos.horaTransporte}</div></div>
+              </div>
+              <div class="row">
+                <div class="col-md-12"><label>Observaciones de terreno</label><div class="info-value">${datos.observaciones}</div></div>
+              </div>
+            </div></div>
+
+            <div class="card"><div class="card-content">
+              <div class="timeline-badge">TIME LINE</div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-icon pre-ingreso"><i class="fas fa-file-alt"></i></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-header">PRE-INGRESO</div>
+                    <div class="timeline-card-body">
+                      <p><strong>Fecha:</strong> ${fAhora}</p>
+                      <p><strong>Usuario:</strong> ${datos.solicitadoPor}</p>
+                      <p><strong>Obser.:</strong> ${datos.observaciones}</p>
+                      <a href="#" class="link-descarga" id="btnDescargarActa"><i class="fas fa-download"></i> DESCARGAR ACTA DE PRE-INGRESO</a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="timeline-item">
+                  <div class="timeline-icon recepcion"><i class="fas fa-box"></i></div>
+                  <div class="timeline-card">
+                    <div class="timeline-card-header">RECEPCIÓN</div>
+                    <div class="timeline-card-body">
+                      <p><strong>Fecha:</strong> ${fAhora}</p>
+                      <a href="#" class="link-descarga"><i class="fas fa-download"></i> DESCARGAR CADENA DE CUSTODIA</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div></div>
+
+            <div style="text-align:center;margin:30px 0;color:#999;font-size:12px">SGS</div>
+          </div>`;
+
+            const container = qs('.content');
+            container.insertAdjacentHTML('beforeend', html);
+            // Mostrar el contenedor de resumen (queda al final)
+            const resumenEl = qs('#resumen');
+            if (resumenEl) { resumenEl.classList.add('active'); }
+            // Acción volver
+            qs('#btnVolverFormulario').addEventListener('click', () => location.reload());
+            // Acción descargar acta
+            qs('#btnDescargarActa').addEventListener('click', (e) => {
+                e.preventDefault();
+                generarPDFActa();
+            });
+        }
+
+        // --- Enviar / guardar y mostrar resumen ---
+        function enviar() {
+            if (!puntosSeleccionados.length) return alert('Por favor, seleccione al menos un punto de muestreo antes de enviar.');
+            const cliente = qs('#selectCliente').value, ol = qs('#selectOL').value;
+            if (!cliente || !ol) return alert('Por favor, complete todos los campos requeridos (Cliente y OL).');
+            if (!confirm('¿Está seguro que desea enviar el Pre-Ingreso de Aire?')) return;
+
+            // Generar folio
+            const folio = Math.floor(Math.random() * 900000) + 100000;
+
+            // Tipo & filtro
+            const tipo = qs('input[name="tipoMuestreo"]:checked').value;
+            const rf = qs('input[name="tipoFiltro"]:checked');
+            const tipoFiltro = (tipo === 'filtros' && rf) ? rf.value : null;
+
+            // Guardar
+            sessionStorage.setItem('folioPreIngreso', folio);
+            sessionStorage.setItem('datosPreIngreso', JSON.stringify({
+                cliente, ol,
+                puntosSeleccionados,
+                tipoMuestreo: tipo,
+                tipoFiltro,
+                matriz: qs('#matriz').value,
+                muestreadoPor: qs('input[name="muestreadoPor"]:checked').value,
+                plan: qs('#planesText').textContent,
+                responsable: qs('#responsableMuestreo').value || 'N/A',
+                fechaTransporte: qs('#fechaTransporte').value,
+                horaTransporte: qs('#horaTransporte').value,
+                observaciones: qs('#observacionesTerreno').value || 'N/A',
+                generacionJob: qs('input[name="job"]:checked').value,
+                proyecto: qs('#selectProyecto').value,
+                solicitadoPor: qs('#solicitadoPor').value,
+                atencionA: qs('#atencionA').value,
+                adcResponsable: qs('#adcResponsable').value
+            }));
+
+            // Mostrar resumen
+            mostrarResumen();
+        }
+
+        // --- Listeners principales ---
+        document.addEventListener('DOMContentLoaded', () => {
             // Inicializar variables del modal de comentarios
             modalComentario = qs('#modalComentario');
             textareaComentario = qs('#textareaComentario');
 
             // Navbar & sidebar
-            qs('#btnBack').addEventListener('click', () => { window.location.href = 'ingreso-aire.html'; });
-            qs('#btnSalir').addEventListener('click', e => { e.preventDefault(); alert('Cerrando sesión...'); });
+            qs('#btnMenu').addEventListener('click', () => qs('#sidebar').classList.toggle('show'));
+            qs('#btnBack').addEventListener('click', () => { window.location.href = 'sgs-sistema-simplificado.html#ingresos-aire'; });
+            qs('#btnSalir').addEventListener('click', e => { e.preventDefault(); alert('Cerrando sesión...') });
 
             // Matriz por defecto
             const selMat = qs('#matriz');
@@ -1506,7 +1968,7 @@
             qs('#selectCliente').addEventListener('change', e => {
                 const key = e.target.value, selOL = qs('#selectOL'), info = qs('#infoAdicional');
                 selOL.innerHTML = '<option value="">Seleccione una OL</option>';
-                info.style.display = 'none';
+                setVisible(info, false);
                 clienteActual = key;
                 puntosSeleccionados = [];
                 actualizarTablaPuntos();
@@ -1522,7 +1984,7 @@
             // OL seleccionada -> proyectos + datos contacto
             qs('#selectOL').addEventListener('change', e => {
                 const v = e.target.value, info = qs('#infoAdicional');
-                if (!v) { info.style.display = 'none'; return; }
+                if (!v) { setVisible(info, false); return; }
                 const [k, i] = v.split('-');
                 const ol = clientesData[k].ols[parseInt(i, 10)];
                 const sp = qs('#selectProyecto');
@@ -1532,7 +1994,7 @@
                 });
                 qs('#atencionA').value = ol.atencionA;
                 qs('#adcResponsable').value = ol.adc;
-                info.style.display = '';
+                setVisible(info, true);
             });
 
             // Tipo de muestreo
@@ -1540,16 +2002,16 @@
                 const filtros = qs('#opcionesFiltros'), jobTotal = qs('#opcionJobTotal'), jobInd = qs('input[name="job"][value="individual"]');
                 puntosSeleccionados = []; actualizarTablaPuntos();
                 if (e.target.value === 'filtros') {
-                    filtros.style.display = ''; jobTotal.style.display = '';
+                    setVisible(filtros, true); setVisible(jobTotal, true);
                     selMat.innerHTML = '<option value="">Seleccione Matriz</option><option value="AIRE_MP_FILTRO_47MM">AIRE_MP_FILTRO_47MM</option><option value="AIRE_MP_FILTRO_HVOL">AIRE_MP_FILTRO_HVOL</option><option value="AIRE_MP_FILTRO_37MM">AIRE_MP_FILTRO_37MM</option>';
                 } else {
-                    filtros.style.display = 'none'; jobTotal.style.display = 'none'; jobInd.checked = true;
+                    setVisible(filtros, false); setVisible(jobTotal, false); jobInd.checked = true;
                     selMat.innerHTML = '<option value="POLVO_SEDIMENTABLE" selected>POLVO_SEDIMENTABLE</option>';
                 }
             }));
 
             // Dropdown plan
-            qs('#btnPlanesToggle').addEventListener('click', (e) => {
+            qs('#btnPlanesToggle').addEventListener('click', e => {
                 e.stopPropagation();
                 qs('#planesDropdown').classList.toggle('show');
             });
@@ -1562,7 +2024,7 @@
                 const t = e.target.value.toLowerCase();
                 qsa('#planesDropdown .dropdown-item-custom').forEach(i => i.style.display = i.textContent.toLowerCase().includes(t) ? 'block' : 'none');
             });
-            document.addEventListener('click', (e) => {
+            document.addEventListener('click', e => {
                 if (!e.target.closest('.dropdown-custom')) qs('#planesDropdown').classList.remove('show')
             });
 
@@ -1579,17 +2041,17 @@
             // Modal events
             qs('#btnCerrarModal').addEventListener('click', cerrarModalPuntos);
             qs('#btnCancelarModal').addEventListener('click', cerrarModalPuntos);
-            modal.addEventListener('click', (e) => { if (e.target === modal) cerrarModalPuntos(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('show')) cerrarModalPuntos(); });
-            modal.addEventListener('change', (e) => { if (e.target.id === 'selectAll') qsa('.checkbox-punto:not(:disabled)', modal).forEach(c => c.checked = e.target.checked); });
-            qs('#searchPuntos').addEventListener('input', (e) => {
+            modal.addEventListener('click', e => { if (e.target === modal) cerrarModalPuntos(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('show')) cerrarModalPuntos(); });
+            modal.addEventListener('change', e => { if (e.target.id === 'selectAll') qsa('.checkbox-punto:not(:disabled)', modal).forEach(c => c.checked = e.target.checked); });
+            qs('#searchPuntos').addEventListener('input', e => {
                 const t = e.target.value.toLowerCase();
                 qsa('#tablaPuntosModal tr').forEach(r => r.style.display = r.textContent.toLowerCase().includes(t) ? '' : 'none');
             });
             qs('#btnConfirmarSeleccion').addEventListener('click', confirmarSeleccion);
 
             // Tabla eventos (inputs dinámicos)
-            qs('#tablaPuntosSeleccionados').addEventListener('input', (e) => {
+            qs('#tablaPuntosSeleccionados').addEventListener('input', e => {
                 const t = e.target;
                 if (t.matches('[data-remove]')) return;
                 const idx = parseInt(t.dataset.idx || '-1', 10), campo = t.dataset.field, tipo = t.dataset.type;
@@ -1598,7 +2060,7 @@
                     else puntosSeleccionados[idx][campo] = t.value;
                 }
             });
-            qs('#tablaPuntosSeleccionados').addEventListener('click', (e) => {
+            qs('#tablaPuntosSeleccionados').addEventListener('click', e => {
                 const btn = e.target.closest('[data-remove]'); if (btn) eliminarPunto(parseInt(btn.dataset.remove, 10));
             });
 
@@ -1609,11 +2071,11 @@
             qs('#btnCerrarComentario').addEventListener('click', cerrarModalComentario);
             qs('#btnCancelarComentario').addEventListener('click', cerrarModalComentario);
             qs('#btnGuardarComentario').addEventListener('click', guardarComentario);
-            modalComentario.addEventListener('click', (e) => { if (e.target === modalComentario) cerrarModalComentario(); });
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalComentario.classList.contains('show')) cerrarModalComentario(); });
+            modalComentario.addEventListener('click', e => { if (e.target === modalComentario) cerrarModalComentario(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalComentario.classList.contains('show')) cerrarModalComentario(); });
 
             // Event listener para botones de comentario en la tabla
-            qs('#tablaPuntosSeleccionados').addEventListener('click', (e) => {
+            qs('#tablaPuntosSeleccionados').addEventListener('click', e => {
                 const btnComment = e.target.closest('[data-comment-idx]');
                 if (btnComment) {
                     const idx = parseInt(btnComment.dataset.commentIdx, 10);
@@ -1626,10 +2088,10 @@
             qs('#btnCerrarNuevoPunto').addEventListener('click', cerrarModalAgregarPunto);
             qs('#btnCerrarNuevoPunto2').addEventListener('click', cerrarModalAgregarPunto);
             qs('#btnGuardarNuevoPunto').addEventListener('click', guardarNuevoPunto);
-            modalAgregarPunto.addEventListener('click', (e) => { if (e.target === modalAgregarPunto) cerrarModalAgregarPunto(); });
+            modalAgregarPunto.addEventListener('click', e => { if (e.target === modalAgregarPunto) cerrarModalAgregarPunto(); });
             
             // Event listener para el botón nuevo punto (delegación de eventos)
-            document.addEventListener('click', (e) => {
+            document.addEventListener('click', e => {
                 if (e.target.id === 'btnNuevoPunto') {
                     abrirModalAgregarPunto();
                 }
@@ -1643,8 +2105,10 @@
             qs('#btnCerrarMasivo').addEventListener('click', cerrarModalMasivo);
             qs('#btnCerrarMasivo2').addEventListener('click', cerrarModalMasivo);
             qs('#btnGuardarMasivo').addEventListener('click', cerrarModalMasivo); // Solo cierra, no hace nada
-            modalAgregarMasivo.addEventListener('click', (e) => { if (e.target === modalAgregarMasivo) cerrarModalMasivo(); });
-        })();
+            modalAgregarMasivo.addEventListener('click', e => { if (e.target === modalAgregarMasivo) cerrarModalMasivo(); });
+            // ===== Fin modal agregar nuevo punto =====
+            // ===== Fin modal de comentarios =====
+        });
     </script>
 
     <!-- Modal de Comentarios -->

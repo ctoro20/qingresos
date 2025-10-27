@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGS - Ficha de Pre-Ingreso de Aire</title>
+
+    <!-- Dependencias UI -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+    
+    <!-- jsPDF para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <style>
+        /* Estilos para las tarjetas de muestra en modo readonly */
+        .readonly-muestras-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .readonly-muestra-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .readonly-muestra-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px; /* Reducido para acercar los campos */
+        }
+        .readonly-muestra-index {
+            background: #66615b;
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .readonly-muestra-id {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        .readonly-muestra-id .details {
+            font-size: 11px;
+            color: #777;
+            font-weight: normal;
+            display: block;
+        }
+        .readonly-muestra-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 6px 15px;
+            font-size: 12px;
+        }
+        .readonly-muestra-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+        }
+        .readonly-muestra-item i {
+            color: #999;
+            width: 15px;
+            text-align: center;
+        }
+        .readonly-muestra-item strong {
+            color: #333;
+        }
+        .muestra-aceptada-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: auto; /* Alinea a la derecha */
+        }
+        .muestra-aceptada-tag.si {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .muestra-aceptada-tag.no {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .muestra-aceptada-tag.pendiente {
+            background: #e9ecef;
+            color: #495057;
+            border: 1px solid #ced4da;
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: 'Montserrat','Helvetica Neue',Arial,sans-serif;
+            background: #ebe7e0;
+            overflow-x: hidden
+        }
+
+        .wrapper {
+            display: flex;
+            width: 100%;
+            min-height: 100vh
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background: #66615b;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: .3s;
+            overflow-y: auto
+        }
+
+            .sidebar .logo {
+                padding: 20px;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,.2)
+            }
+
+                .sidebar .logo h2 {
+                    color: #9e9e9e;
+                    margin: 0;
+                    font-size: 32px;
+                    font-weight: 300
+                }
+
+            .sidebar .user {
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(255,255,255,.2);
+                color: #fff;
+                display: flex;
+                align-items: center;
+                gap: 10px
+            }
+
+                .sidebar .user i {
+                    font-size: 24px
+                }
+
+            .sidebar .nav {
+                margin-top: 15px;
+                padding: 0;
+                list-style: none
+            }
+
+                .sidebar .nav li a {
+                    color: rgba(255,255,255,.8);
+                    padding: 12px 20px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    text-decoration: none;
+                    transition: .3s;
+                    cursor: pointer
+                }
+
+                    .sidebar .nav li a:hover {
+                        background: rgba(255,255,255,.1)
+                    }
+
+                .sidebar .nav li.active a {
+                    color: #51cbce;
+                    background: rgba(255,255,255,.1)
+                }
+
+        /* Main */
+        .main-panel {
+            flex: 1;
+            margin-left: 220px;
+            width: calc(100% - 220px);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #fff;
+            margin: 0;
+            padding: 15px 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.1);
+            display: flex;
+            align-items: center;
+            gap: 15px
+        }
+
+            .navbar .btn-menu {
+                background: #ef8157;
+                color: #fff;
+                border: none;
+                width: 40px;
+                height: 40px;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 18px
+            }
+
+            .navbar h5 {
+                margin: 0;
+                color: #66615b;
+                font-size: 18px;
+                font-weight: 400;
+                font-family: Muli,Arial,sans-serif
+            }
+
+            .navbar .btn-back {
+                background: #ef8157;
+                color: #fff;
+                border: none;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 18px
+            }
+
+                .navbar .btn-back:hover {
+                    opacity: .9
+                }
+
+        /* Content & cards */
+        .content {
+            flex: 1;
+            padding: 20px
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 6px 10px -4px rgba(0,0,0,.15);
+            margin-bottom: 20px
+        }
+
+        .card-content {
+            padding: 20px
+        }
+
+            .card-content label {
+                font-family: Muli,Arial,sans-serif;
+                font-size: 14px;
+                color: #252422;
+                font-weight: normal;
+                margin-bottom: 5px;
+                display: block
+            }
+
+        /* Inputs */
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 14px;
+            background: #ebe7e0;
+            width: 100%
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #51cbce;
+                background: #ebe7e0
+            }
+
+        /* Botones */
+        .btn-enviar {
+            background: #5fb3b3;
+            color: #fff;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            display: block;
+            margin: 20px auto;
+            cursor: pointer;
+            font-size: 14px
+        }
+
+            .btn-enviar:hover {
+                background: #4fa0a0
+            }
+
+        .btn-buscar-puntos {
+            background: #ef8157;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px
+        }
+
+            .btn-buscar-puntos:hover {
+                background: #e96342
+            }
+
+        .btn-eliminar {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px
+        }
+
+            .btn-eliminar:hover {
+                background: #c0392b
+            }
+
+        .btn-volver {
+            background: #66615b;
+            color: #fff;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 20px auto;
+            display: block
+        }
+
+            .btn-volver:hover {
+                background: #57534e
+            }
+
+        /* Texto */
+        h1 {
+            color: #66615b;
+            font-size: 24px;
+            margin-bottom: 20px
+        }
+        /* h5 global no se toca; sólo el de navbar arriba */
+
+        /* Dropdown plan */
+        .dropdown-custom {
+            position: relative
+        }
+
+        .dropdown-toggle {
+            background: #5fb3b3;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: Muli,Arial,sans-serif;
+            border: none;
+            width: 100%;
+            text-align: left
+        }
+
+        .dropdown-menu-custom {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,.1)
+        }
+
+            .dropdown-menu-custom.show {
+                display: block
+            }
+
+        .dropdown-item-custom {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0
+        }
+
+            .dropdown-item-custom:hover {
+                background: #f9f9f9
+            }
+
+        .search-input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px
+        }
+
+        /* Tabla principal */
+        .table {
+            margin-top: 20px;
+            width: 100%
+        }
+
+            .table thead th {
+                border-bottom: 2px solid #ddd;
+                color: #252422;
+                font-weight: 500;
+                font-size: 11px;
+                text-transform: uppercase;
+                padding: 12px 8px;
+                font-family: Muli,Arial,sans-serif
+            }
+
+            .table tbody td {
+                border-bottom: 1px solid #f0f0f0;
+                font-size: 14px;
+                padding: 12px 8px;
+                font-family: Muli,Arial,sans-serif;
+                color: #252422;
+                text-align: center
+            }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+            .modal.show {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+        .modal-content {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ef8157;
+            background: transparent;
+            color: #ef8157;
+        }
+
+            .modal-header h5 {
+                font-size: 16px;
+                margin: 0;
+                font-weight: 500
+            }
+
+        .modal-body {
+            padding: 0;
+            max-height: none;
+            overflow-y: visible;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 10px
+        }
+
+        .modal-search {
+            margin-bottom: 10px;
+        }
+
+            .modal-search input {
+                width: 100%;
+                padding: 8px 12px;
+                border: 2px solid #d0d0d0;
+                border-radius: 8px;
+                font-size: 14px;
+                transition: border-color .3s;
+                background: #fafafa
+            }
+
+                .modal-search input:focus {
+                    outline: none;
+                    border-color: #ef8157;
+                    background: #fff
+                }
+
+        .modal-table {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+            .modal-table thead th {
+                background: #f5f5f5;
+                border-bottom: 2px solid #ddd;
+                color: #252422;
+                font-weight: 500;
+                font-size: 11px;
+                text-transform: uppercase;
+                padding: 8px 6px;
+            }
+
+            .modal-table tbody td {
+                border-bottom: 1px solid #f0f0f0;
+                font-size: 13px;
+                padding: 8px 6px;
+            }
+
+            .modal-table tbody tr:hover {
+                background: #f9f9f9;
+            }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            line-height: 1;
+        }
+
+            .modal-close:hover {
+                color: #ef8157;
+            }
+
+        .btn-modal-cancel {
+            background: #ccc;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-modal-confirm {
+            background: #5fb3b3;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+            .btn-modal-confirm:hover {
+                background: #4fa0a0;
+            }
+
+        /* Resumen */
+        #resumen {
+            display: none
+        }
+
+            #resumen.active {
+                display: block
+            }
+
+        .timeline-badge {
+            background: #ef8157;
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 20px
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0
+        }
+
+            .timeline:before {
+                content: '';
+                position: absolute;
+                left: 30px;
+                top: 0;
+                bottom: 0;
+                width: 2px;
+                background: #ddd
+            }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 70px;
+            margin-bottom: 30px
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            z-index: 1
+        }
+
+            .timeline-icon.pre-ingreso {
+                background: #5fb3b3
+            }
+
+            .timeline-icon.recepcion {
+                background: #ef8157
+            }
+
+        .timeline-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1)
+        }
+
+        .timeline-card-header {
+            font-weight: 600;
+            color: #66615b;
+            margin-bottom: 10px;
+            font-size: 14px
+        }
+
+        .timeline-card-body p {
+            margin: 5px 0;
+            font-size: 13px;
+            color: #666
+        }
+
+        .link-descarga {
+            color: #5fb3b3;
+            text-decoration: none;
+            font-size: 13px;
+            display: inline-block;
+            margin-top: 8px
+        }
+
+            .link-descarga:hover {
+                color: #4fa0a0
+            }
+
+        .info-value {
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #252422;
+            min-height: 38px
+        }
+
+        .badge-ingresado {
+            background: #27ae60;
+            color: #fff;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            letter-spacing: .3px
+        }
+
+        .resumen-container .card {
+            margin-bottom: 16px
+        }
+
+        .resumen-header {
+            gap: 12px
+        }
+
+        /* Responsive */
+        @media (max-width:575px) {
+            .resumen-header {
+                flex-wrap: wrap
+            }
+
+                .resumen-header .btn-volver {
+                    width: 100%
+                }
+
+            .content {
+                padding: 12px
+            }
+        }
+
+        @media (max-width:991px) {
+            .sidebar {
+                left: -220px
+            }
+
+                .sidebar.show {
+                    left: 0
+                }
+
+            .main-panel {
+                margin-left: 0;
+                width: 100%
+            }
+
+            .navbar .btn-menu {
+                display: flex
+            }
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            justify-content: flex-start; /* texto y botones alineados a la izquierda */
+        }
+
+            .navbar h5 {
+                margin: 0;
+                color: #66615b;
+                font-size: 18px;
+                font-weight: 400;
+            }
+
+        .btn-back {
+            background: #ef8157;
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+            .btn-back:hover {
+                opacity: 0.9;
+            }
+
+        /* Modal de comentarios */
+        .modal-comentario {
+            display: none;
+            position: fixed;
+            z-index: 2001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.5);
+            align-items: center;
+            justify-content: center
+        }
+
+            .modal-comentario.show {
+                display: flex
+            }
+
+            .modal-comentario .modal-dialog-comment {
+                background: #fff;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 600px;
+                box-shadow: 0 5px 15px rgba(0,0,0,.3)
+            }
+
+            .modal-comentario .modal-header-comment {
+                padding: 20px;
+                border-bottom: 1px solid #ddd;
+                display: flex;
+                justify-content: space-between;
+                align-items: center
+            }
+
+                .modal-comentario .modal-header-comment h5 {
+                    margin: 0;
+                    color: #66615b;
+                    font-size: 18px
+                }
+
+                .modal-comentario .modal-header-comment .close-comment {
+                    background: none;
+                    border: none;
+                    font-size: 28px;
+                    color: #999;
+                    cursor: pointer;
+                    line-height: 1;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px
+                }
+
+                    .modal-comentario .modal-header-comment .close-comment:hover {
+                        color: #333
+                    }
+
+            .modal-comentario .modal-body-comment {
+                padding: 20px
+            }
+
+                .modal-comentario .modal-body-comment label {
+                    font-family: Muli,Arial,sans-serif;
+                    font-size: 14px;
+                    color: #252422;
+                    font-weight: normal;
+                    margin-bottom: 8px;
+                    display: block
+                }
+
+                .modal-comentario .modal-body-comment textarea {
+                    width: 100%;
+                    min-height: 120px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 10px;
+                    font-size: 14px;
+                    font-family: 'Montserrat','Helvetica Neue',Arial,sans-serif;
+                    resize: vertical
+                }
+
+                    .modal-comentario .modal-body-comment textarea:focus {
+                        outline: none;
+                        border-color: #51cbce
+                    }
+
+            .modal-comentario .modal-footer-comment {
+                padding: 15px 20px;
+                border-top: 1px solid #ddd;
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px
+            }
+
+        /* Botón de comentario en la tabla */
+        .btn-comentario {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .3s;
+            margin-right: 5px
+        }
+
+            .btn-comentario:hover {
+                opacity: .85
+            }
+
+            .btn-comentario.has-comment {
+                background: #51cbce
+            }
+
+            .btn-comentario i {
+                font-size: 14px
+            }
+
+
+        /* Botones nuevo punto */
+        .modal-search-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 0;
+            margin-bottom: 10px
+        }
+
+        .modal-search-actions input {
+            flex: 1;
+            margin: 0;
+            padding: 8px 12px;
+            border: 2px solid #d0d0d0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color .3s;
+            background: #fafafa
+        }
+
+            .modal-search-actions input:focus {
+                outline: none;
+                border-color: #ef8157;
+                background: #fff
+            }
+
+        .btn-nuevo-punto {
+            background: #ef8157;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all .3s
+        }
+
+            .btn-nuevo-punto:hover {
+                opacity: .9
+            }
+
+        /* Modal agregar punto */
+        .modal-agregar-punto {
+            display: none;
+            position: fixed;
+            z-index: 2002;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.5);
+            align-items: center;
+            justify-content: center
+        }
+
+            .modal-agregar-punto.show {
+                display: flex
+            }
+
+            .modal-agregar-punto .modal-dialog-nuevo {
+                background: #fff;
+                border-radius: 8px;
+                width: 90%;
+                max-width: 600px;
+                box-shadow: 0 5px 15px rgba(0,0,0,.3)
+            }
+
+            .modal-agregar-punto .modal-header-nuevo {
+                padding: 20px;
+                border-bottom: 1px solid #ddd;
+                display: flex;
+                justify-content: space-between;
+                align-items: center
+            }
+
+                .modal-agregar-punto .modal-header-nuevo h5 {
+                    margin: 0;
+                    color: #66615b;
+                    font-size: 18px
+                }
+
+                .modal-agregar-punto .modal-header-nuevo .close-nuevo {
+                    background: none;
+                    border: none;
+                    font-size: 28px;
+                    color: #999;
+                    cursor: pointer;
+                    line-height: 1;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px
+                }
+
+                    .modal-agregar-punto .modal-header-nuevo .close-nuevo:hover {
+                        color: #333
+                    }
+
+            .modal-agregar-punto .modal-body-nuevo {
+                padding: 20px
+            }
+
+                .modal-agregar-punto .modal-body-nuevo .form-group-nuevo {
+                    margin-bottom: 15px
+                }
+
+                    .modal-agregar-punto .modal-body-nuevo .form-group-nuevo label {
+                        font-family: Muli,Arial,sans-serif;
+                        font-size: 14px;
+                        color: #252422;
+                        font-weight: normal;
+                        margin-bottom: 5px;
+                        display: block
+                    }
+
+                        .modal-agregar-punto .modal-body-nuevo .form-group-nuevo label .required {
+                            color: #e74c3c
+                        }
+
+                    .modal-agregar-punto .modal-body-nuevo .form-group-nuevo input,
+                    .modal-agregar-punto .modal-body-nuevo .form-group-nuevo select {
+                        width: 100%;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        padding: 10px;
+                        font-size: 14px;
+                        font-family: 'Montserrat','Helvetica Neue',Arial,sans-serif
+                    }
+
+                        .modal-agregar-punto .modal-body-nuevo .form-group-nuevo input:focus,
+                        .modal-agregar-punto .modal-body-nuevo .form-group-nuevo select:focus {
+                            outline: none;
+                            border-color: #51cbce
+                        }
+
+            .modal-agregar-punto .modal-footer-nuevo {
+                padding: 15px 20px;
+                border-top: 1px solid #ddd;
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px
+            }
+
+
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="logo"><h2>SGS</h2></div>
+            <div class="user"><i class="fas fa-user-circle"></i><span>gnunovero</span></div>
+            <ul class="nav">
+                <li><a href="index.html"><i class="fas fa-home"></i><span>Inicio</span></a></li>
+                <li><a href="ingreso-agua.html"><i class="fas fa-tint"></i><span>Ingresos de Agua</span></a></li>
+                <li class="active"><a href="ingreso-aire.html"><i class="fas fa-wind"></i><span>Ingresos de Aire</span></a></li>
+                <li><a href="gestion-usuarios.html"><i class="fas fa-users"></i><span>Gestión de Usuarios</span></a></li>
+                <li><a href="#" id="btnSalir"><i class="fas fa-sign-out-alt"></i><span>Salir</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Main -->
+        <div class="main-panel">
+            <!-- Navbar -->
+            <nav class="navbar" style="justify-content: flex-start;">
+                <button class="btn-menu" id="btnMenu" onclick="document.getElementById('sidebar').classList.toggle('show')"><i class="fas fa-bars"></i></button>
+                <button class="btn-back" id="btnBack" title="Volver"><i class="fas fa-arrow-left"></i></button>
+                <h5>Ficha de Pre-Ingreso de Aire</h5>
+            </nav>
+
+            <!-- Content -->
+            <div class="content">
+
+                <!-- Información general del cliente -->
+                <div id="readonly-view">
+                    <!-- El contenido de solo lectura se generará aquí -->
+                </div>
+
+            </div>
+        </div><!-- /main-panel -->
+    </div><!-- /wrapper -->
+    <!-- Script de aplicación -->
+    <script>
+        (function() {
+            // --- Datos base ---
+            const clientesData = { codelco: { nombre: 'CORP NACIONAL DEL COBRE DE CHILE', rut: '61704000-K', ols: [{ codigo: '801598', adc: 'kpizarro', atencionA: 'Juan Pérez', proyectos: ['Proyecto Chuquicamata', 'Proyecto Radomiro Tomic', 'Proyecto Ministro Hales'] }, { codigo: '801645', adc: 'mrodriguez', atencionA: 'María González', proyectos: ['Proyecto El Teniente', 'Proyecto Andina'] }] }, antofagasta: { nombre: 'ANTOFAGASTA MINERALS S.A.', rut: '96.955.310-7', ols: [{ codigo: '802105', adc: 'lmartinez', atencionA: 'Ana Rojas', proyectos: ['Proyecto Los Pelambres', 'Proyecto Centinela'] }] }, escondida: { nombre: 'MINERA ESCONDIDA LTDA', rut: '79.691.790-6', ols: [{ codigo: '803421', adc: 'rcastillo', atencionA: 'Luis Torres', proyectos: ['Proyecto Escondida Principal', 'Proyecto Escondida Norte'] }] } };
+            const puntosMuestreoPorCliente = { codelco: [{ id: 'MPS-CDL-001', lugar: 'Planta Concentradora', direccion: 'Sector Norte, Chuquicamata', coordenadas: '-22.3095, -68.9029' }, { id: 'MPS-CDL-002', lugar: 'Área de Chancado', direccion: 'Sector Este, Chuquicamata', coordenadas: '-22.3105, -68.9039' }, { id: 'MPS-CDL-003', lugar: 'Depósito de Relaves', direccion: 'Sector Sur, El Teniente', coordenadas: '-34.0895, -70.4512' }], antofagasta: [{ id: 'MPS-ANT-001', lugar: 'Planta de Procesos', direccion: 'Los Pelambres, Salamanca', coordenadas: '-31.7321, -70.5689' }, { id: 'MPS-ANT-002', lugar: 'Tranque de Relaves', direccion: 'Sector El Mauro', coordenadas: '-31.8456, -70.4521' }], escondida: [{ id: 'MPS-ESC-001', lugar: 'Mina Rajo Abierto', direccion: 'Escondida, Antofagasta', coordenadas: '-24.2345, -69.0567' }, { id: 'MPS-ESC-002', lugar: 'Puerto de Embarque', direccion: 'Coloso, Antofagasta', coordenadas: '-23.7521, -70.4456' }] };
+            const filtrosPorCliente = { codelco: { mp10: [{ id: 'FLT-MP10-CDL-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP10-CDL-002', pesoOriginal: '0.5198 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-CDL-003', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-15' }], mp25: [{ id: 'FLT-MP25-CDL-001', pesoOriginal: '0.4987 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP25-CDL-002', pesoOriginal: '0.5012 g', fechaCreacion: '2025-09-20' }] }, antofagasta: { mp10: [{ id: 'FLT-MP10-ANT-001', pesoOriginal: '0.5245 g', fechaCreacion: '2025-10-03' }, { id: 'FLT-MP10-ANT-002', pesoOriginal: '0.5212 g', fechaCreacion: '2025-10-04' }], mp25: [{ id: 'FLT-MP25-ANT-001', pesoOriginal: '0.5023 g', fechaCreacion: '2025-10-03' }] }, escondida: { mp10: [{ id: 'FLT-MP10-ESC-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-ESC-002', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-18' }], mp25: [{ id: 'FLT-MP25-ESC-001', pesoOriginal: '0.5012 g', fechaCreacion: '2025-10-02' }] } };
+
+            // --- Helpers ---
+            const qs = (s, c = document) => c.querySelector(s);
+            const qsa = (s, c = document) => Array.from(c.querySelectorAll(s));
+
+            // --- Funciones de Renderizado ---
+            function mostrarResumen(datos) {
+                const container = qs('#readonly-view');
+                if (!container) return;
+
+                const info = clientesData[datos.cliente];
+                const fAhora = new Date().toLocaleString('es-CL');
+                const fHoy = new Date().toLocaleDateString('es-CL');
+                const [k, i] = datos.ol.split('-');
+                const olCodigo = info.ols[parseInt(i, 10)].codigo;
+
+                const muestrasHTML = datos.puntosSeleccionados.map((p, idx) => {
+                    const ini = p.fechaInicio && p.horaInicio ? `${p.fechaInicio} ${p.horaInicio}` : p.fechaInicio || '';
+                    const fin = p.fechaTermino && p.horaTermino ? `${p.fechaTermino} ${p.horaTermino}` : p.fechaTermino || '';
+                    const lugar = p.tipo === 'filtro' ? (p.lugarMuestreo || '') : `<div style="font-weight:500;">${p.lugar}</div><div style="font-size:11px;color:#666;">${p.direccion}</div>`;
+                    const det = p.tipo === 'filtro' ? `<div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div>` : '';
+                    const comentario = p.comentario && p.comentario.trim() ? p.comentario : 'Sin comentario';
+                    
+                    let aceptadaTag = '';
+                    let jobTexto = p.job || 'N/A';
+
+                    if (datos.estado === 'Recepcionado' || datos.estado === 'Finalizado') {
+                        const aceptada = Math.random() > 0.2; // 80% de probabilidad de ser aceptada
+                        const clase = aceptada ? 'si' : 'no';
+                        const texto = aceptada ? 'Aceptada' : 'No Aceptada';
+                        aceptadaTag = `<span class="muestra-aceptada-tag ${clase}">${texto}</span>`;
+                    } else if (datos.estado === 'Por Ingresar') {
+                        aceptadaTag = `<span class="muestra-aceptada-tag pendiente">Pendiente</span>`;
+                        jobTexto = 'Pendiente';
+                    }
+                    
+                    return `
+                        <div class="readonly-muestra-card">
+                            <div class="readonly-muestra-header">
+                                <div class="readonly-muestra-index">${idx + 1}</div>
+                                <div class="readonly-muestra-id">
+                                    ${p.id}
+                                    ${det}
+                                </div>
+                                ${aceptadaTag}
+                            </div>
+                            <div class="readonly-muestra-body">
+                                <div class="readonly-muestra-item"><i class="fas fa-map-marker-alt"></i> <strong>Lugar:</strong> ${p.tipo === 'filtro' ? (p.lugarMuestreo || 'N/A') : p.lugar}</div>
+                                <div class="readonly-muestra-item"><i class="fas fa-calendar-alt"></i> <strong>Inicio:</strong> ${ini || 'N/A'}</div>
+                                <div class="readonly-muestra-item"><i class="fas fa-calendar-check"></i> <strong>Término:</strong> ${fin || 'N/A'}</div>
+                                <div class="readonly-muestra-item"><i class="fas fa-barcode"></i> <strong>JOB:</strong> ${jobTexto}</div>
+                                <div class="readonly-muestra-item"><i class="fas fa-comment"></i> <strong>Comentario:</strong> ${comentario}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const html = `
+                    <div class="card"><div class="card-content"><h2 style="color:#ef8157;font-size:20px;margin-bottom:0"># Folio ${datos.folio}</h2></div></div>
+                    <div class="card"><div class="card-content"><h5>Información general del cliente</h5><div class="row mb-3"><div class="col-md-6"><label>Cliente</label><div class="info-value">${info.rut} - ${info.nombre}</div></div><div class="col-md-6"><label>OL</label><div class="info-value">${olCodigo}</div></div></div><div class="row mb-3"><div class="col-md-12"><label>Proyecto</label><div class="info-value">${datos.proyecto || 'Default project'}</div></div></div><div class="row mb-3"><div class="col-md-4"><label>Solicitado por:</label><div class="info-value">${datos.solicitadoPor}</div></div><div class="col-md-4"><label>Atención a:</label><div class="info-value">${datos.atencionA}</div></div><div class="col-md-4"><label>ADC Responsable:</label><div class="info-value">${datos.adcResponsable}</div></div></div></div></div>
+                    <div class="card"><div class="card-content"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h5 class="mb-0">Información general</h5><div style="display:flex;align-items:center;gap:15px"><span class="badge-ingresado">${datos.estado.toUpperCase()}</span><span style="font-size:14px;color:#666">Fecha: ${fHoy}</span></div></div><div class="row mb-3"><div class="col-md-6"><label>Tipo Muestreo</label><div class="info-value">${datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'}</div></div>${datos.tipoMuestreo === 'filtro' && datos.tipoFiltro ? `<div class="col-md-6"><label>Tipo de Filtro</label><div class="info-value">${datos.tipoFiltro.toUpperCase()}</div></div>`: '<div class="col-md-6"></div>'}</div><div class="row mb-3"><div class="col-md-6"><label>Muestreado por:</label><div class="info-value">${datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'Cliente'}</div></div><div class="col-md-6"><label>Matriz</label><div class="info-value">${datos.matriz}</div></div></div><div class="row mb-3"><div class="col-md-12"><label>Plan</label><div class="info-value">${datos.plan}</div></div></div><div class="row"><div class="col-md-12"><label>Generación de JOB</label><div class="info-value">${datos.generacionJob === 'total' ? 'Generar un JOB para la totalidad de los puntos ingresados' : 'Generar un JOB por punto ingresado'}</div></div></div></div></div>
+                    <div class="card"><div class="card-content"><h5>Puntos de Muestreo</h5><div class="readonly-muestras-list">${muestrasHTML}</div><div class="row mb-3 mt-4"><div class="col-md-12"><strong>Cantidad de muestras ingresadas: ${datos.puntosSeleccionados.length}</strong></div></div><div class="row mb-3"><div class="col-md-4"><label>Responsable de Muestreo</label><div class="info-value">${datos.responsable}</div></div><div class="col-md-4"><label>Fecha Transporte</label><div class="info-value">${datos.fechaTransporte}</div></div><div class="col-md-4"><label>Hora Transporte</label><div class="info-value">${datos.horaTransporte}</div></div></div><div class="row"><div class="col-md-12"><label>Observaciones de terreno</label><div class="info-value">${datos.observaciones}</div></div></div></div></div>
+                    <div class="card"><div class="card-content"><div class="timeline-badge">TIME LINE</div><div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-icon pre-ingreso"><i class="fas fa-file-alt"></i></div>
+                            <div class="timeline-card"><div class="timeline-card-header">PRE-INGRESO</div><div class="timeline-card-body"><p><strong>Fecha:</strong> ${fAhora}</p><p><strong>Usuario:</strong> ${datos.solicitadoPor}</p><p><strong>Obser.:</strong> ${datos.observaciones}</p><a href="#" class="link-descarga" id="btnDescargarActa"><i class="fas fa-download"></i> DESCARGAR ACTA DE PRE-INGRESO</a></div></div>
+                        </div>
+                        ${(datos.estado === 'Recepcionado' || datos.estado === 'Finalizado') ? `
+                        <div class="timeline-item">
+                            <div class="timeline-icon recepcion"><i class="fas fa-box"></i></div>
+                            <div class="timeline-card"><div class="timeline-card-header">RECEPCIÓN</div><div class="timeline-card-body"><p><strong>Fecha:</strong> ${fAhora}</p><a href="#" class="link-descarga"><i class="fas fa-download"></i> DESCARGAR CADENA DE CUSTODIA</a></div></div>
+                        </div>` : ''}
+                    </div></div></div>
+                    <div style="text-align:center;margin:30px 0;color:#999;font-size:12px">SGS</div>
+                `;
+
+                container.innerHTML = html;
+                qs('#btnDescargarActa').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    generarPDFActa(datos);
+                });
+            }
+
+            function generarPDFActa(datos) {
+                // Implementación de la generación de PDF...
+                // Esta es una implementación placeholder, la lógica real de jsPDF debe ir aquí.
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text(`Acta de Pre-Ingreso (Folio: ${datos.folio})`, 20, 20);
+                doc.save(`Acta_PreIngreso_${datos.folio}.pdf`);
+            }
+
+            // --- Lógica de Inicialización ---
+            function initReadonlyMode() {
+                const params = new URLSearchParams(window.location.search);
+                const folio = params.get('folio') || 'N/A';
+                const tipoMuestra = params.get('tipo-muestra') || 'MPS';
+                const estado = params.get('estado') || 'Finalizado';
+                const numMuestras = parseInt(params.get('numero-muestras'), 10) || 5;
+                const matriz = params.get('matriz') || 'POLVO_SEDIMENTABLE';
+
+                const lugaresMuestreoFiltro = ['Casino Central', 'Garita Acceso Norte', 'Taller de Mantención', 'Oficinas Administrativas', 'Bodega Principal'];
+
+                const mockPuntos = [];
+                for (let i = 0; i < numMuestras; i++) {
+                    mockPuntos.push({
+                        id: `${tipoMuestra}-${folio}-${String(i + 1).padStart(3, '0')}`,
+                        lugar: `Punto de Muestreo #${i + 1}`,
+                        direccion: `Sector ${String.fromCharCode(65 + i)}`,
+                        lugarMuestreo: lugaresMuestreoFiltro[i % lugaresMuestreoFiltro.length], // Asignación aleatoria
+                        tipo: tipoMuestra.toLowerCase() === 'mps' ? 'mps' : 'filtro',
+                        tipoFiltro: tipoMuestra.toLowerCase() === 'filtro' ? (i % 2 === 0 ? 'MP10' : 'MP2.5') : null,
+                        fechaCreacion: '2025-10-01',
+                        job: `EA25-0${8458 + i}`,
+                        fechaInicio: '2025-10-10',
+                        horaInicio: '09:00',
+                        fechaTermino: '2025-10-10',
+                        horaTermino: '17:00',
+                        comentario: i % 3 === 0 ? 'Muestra en condiciones óptimas.' : ''
+                    });
+                }
+
+                const mockData = {
+                    folio,
+                    estado,
+                    cliente: 'codelco',
+                    ol: 'codelco-0',
+                    puntosSeleccionados: mockPuntos,
+                    tipoMuestreo: tipoMuestra.toLowerCase(),
+                    tipoFiltro: tipoMuestra.toLowerCase() === 'filtro' ? (Math.random() < 0.5 ? 'mp10' : 'mp2.5') : null,
+                    matriz: matriz,
+                    muestreadoPor: 'sgs',
+                    plan: 'AIRE_001_A',
+                    responsable: 'Juan Pérez',
+                    fechaTransporte: '2025-10-11',
+                    horaTransporte: '10:00',
+                    observaciones: 'Observación de solo lectura.',
+                    generacionJob: 'individual',
+                    proyecto: 'Proyecto de Lectura',
+                    solicitadoPor: 'gnunovero',
+                    atencionA: 'Gerencia de Operaciones',
+                    adcResponsable: 'kpizarro'
+                };
+
+                const readonlyContainer = qs('#readonly-view');
+                if (readonlyContainer) {
+                    mostrarResumen(mockData);
+                }
+
+                qs('#btnBack').addEventListener('click', () => { window.location.href = 'ingreso-aire.html'; });
+            }
+
+            // --- Punto de Entrada ---
+            document.addEventListener('DOMContentLoaded', initReadonlyMode);
+        })();
+    </script>
+
+    <!-- Modal de Comentarios -->
+
+</body>
+</html>
