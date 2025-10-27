@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGS - Ingresos de Aire v2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif; background-color: #ebe7e0; overflow-x: hidden; }
+        .wrapper { display: flex; width: 100%; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: 200px; background: #66615B; position: fixed; height: 100vh; left: 0; top: 0; z-index: 1000; transition: all 0.3s; overflow-y: auto; }
+        .sidebar .logo { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .sidebar .logo h2 { color: #9e9e9e; margin: 0; font-size: 28px; font-weight: 300; }
+        .sidebar .user { padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; display: flex; align-items: center; gap: 10px; }
+        .sidebar .user i { font-size: 24px; }
+        .sidebar .nav { margin-top: 15px; padding: 0; list-style: none; }
+        .sidebar .nav li a { color: rgba(255,255,255,0.8); padding: 12px 20px; display: flex; align-items: center; gap: 10px; text-decoration: none; transition: all 0.3s; cursor: pointer; }
+        .sidebar .nav li a:hover { background: rgba(255,255,255,0.1); }
+        .sidebar .nav li.active a { color: #51cbce; background: rgba(255,255,255,0.1); }
+
+        /* Main Panel */
+        .main-panel { flex: 1; margin-left: 200px; width: calc(100% - 200px); min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* Navbar */
+        .navbar { background: white; border: 0; margin: 0; padding: 15px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 15px; justify-content: flex-start; }
+        .navbar .btn-menu { background: #ef8157; color: white; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; font-size: 18px; flex-shrink: 0; }
+        .navbar h5 { margin: 0; color: #66615B; font-size: 18px; font-weight: 400; font-family: Muli, Arial, sans-serif; text-align: left; }
+
+        /* Content & Filters */
+        .content { flex: 1; padding: 15px; width: 100%; }
+        .card { background: white; border-radius: 6px; box-shadow: 0 6px 10px -4px rgba(0,0,0,0.15); margin-bottom: 12px; border: none; }
+        .card-content { padding: 15px; }
+        .card-content label { font-family: Muli, Arial, sans-serif; font-size: 11px; color: #252422; font-weight: normal; margin-bottom: 5px; text-transform: uppercase; }
+        .form-control { border: 1px solid #ddd; border-radius: 4px; padding: 6px 12px; font-size: 14px; background-color: #ebe7e0; height: 38px; width: 100%; }
+        .form-control:focus { outline: none; border-color: #51cbce; background-color: #ebe7e0; box-shadow: none; }
+        .mb-3 { margin-bottom: 0.8rem !important; }
+
+        /* Buttons */
+        .btn-buscar { background-color: #ef8157; border-color: #ef8157; color: white; padding: 8px 20px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px; font-weight: normal; height: 38px; }
+        .btn-buscar:hover { background-color: #e96342; }
+        .btn-limpiar { background-color: #a49e93; color: white; border: none; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+        .btn-limpiar:hover { background-color: #8a847c; }
+        .btn-ver-mas { background-color: #51cbce; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 400; height: 38px; white-space: nowrap; transition: all 0.3s; }
+        .btn-ver-mas:hover { background-color: #3db0b3; }
+        .btn-ver-mas i { margin-right: 5px; transition: transform 0.3s; }
+        .btn-ver-mas.expanded i { transform: rotate(180deg); }
+        .btn-nuevo { background-color: #66615B; border-color: #66615B; color: white; padding: 8px 18px; border-radius: 4px; border: none; cursor: pointer; font-size: 14px; font-weight: normal; height: 38px; }
+        .btn-nuevo:hover { background-color: #57534e; }
+
+        .filtros-adicionales { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 0; opacity: 0; }
+        .filtros-adicionales.show { max-height: 500px; opacity: 1; }
+
+        /* Document Cards */
+        .document-card { margin-bottom: 8px; }
+        .document-card .card-body { padding: 10px 15px; }
+        .document-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .document-title-section { display: flex; align-items: center; gap: 10px; }
+        .document-folio { font-size: 18px; font-weight: 600; color: #252422; }
+        .document-folio-label { font-weight: 600; margin-right: 5px; }
+        .document-actions-header { display: flex; align-items: center; gap: 15px; }
+        .document-folio-link { display: flex; align-items: center; gap: 8px; text-decoration: none; color: #51cbce; }
+        .document-folio-link:hover { text-decoration: none; color: #3db0b3; }
+        .document-folio-link .document-folio { color: #252422; }
+        .document-folio-link:hover .document-folio { color: #252422; }
+        .document-folio-link i { font-size: 16px; }
+
+
+
+        .document-info-line { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 6px; row-gap: 4px; font-size: 12px; color: #66615B; }
+        .document-info-item { display: flex; align-items: center; gap: 4px; font-size: 11.5px; }
+        .flex-break { flex-basis: 100%; height: 0; }
+        .document-info-item i { color: #9a9a9a; font-size: 14px; }
+        .info-label-inline { font-weight: 600; color: #666666; }
+        .info-value-inline { color: #66615B; }
+
+        /* Dropdown Menu */
+        .dropdown { position: relative; display: inline-block; }
+        .btn-opciones { background-color: #ef8157; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; height: 38px; display: flex; align-items: center; justify-content: space-between; }
+        .btn-opciones:hover { background-color: #e96342; }
+        .dropdown-menu-custom { display: none; position: absolute; right: 0; top: 100%; background-color: white; min-width: 160px; box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2); z-index: 1000; border-radius: 4px; margin-top: 5px; }
+        .dropdown-menu-custom.show { display: block; }
+        .dropdown-item-custom { color: #66615B; padding: 10px 16px; text-decoration: none; display: block; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+        .dropdown-item-custom:last-child { border-bottom: none; }
+        .dropdown-item-custom:hover { background-color: #f5f5f5; }
+
+        /* Badges */
+        .badge { border-radius: 10px; padding: 3px 8px; font-size: 9px; font-weight: 500; text-transform: uppercase; line-height: 1.2; margin: 0 2px; display: inline-block; }
+        .badge-finalizado { background-color: #4caf50; color: white; }
+        .badge-recepcionado { background-color: #ff9800; color: white; }
+        .badge-por-ingresar { background-color: #2196f3; color: white; }
+        .badge-info { background-color: #51cbce; color: #ffffff; }
+        .badge-success { background-color: #6bd098; color: #ffffff; }
+        .badge-secondary { background-color: #a49e93; color: #ffffff; }
+
+        /* Footer */
+        .footer { background: white; border-top: 1px solid #e3e3e3; padding: 15px 20px; margin-top: auto; text-align: right; }
+        .footer .copyright { color: #9A9A9A; font-size: 14px; margin: 0; }
+        .footer a { color: #51cbce; text-decoration: none; }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .sidebar { left: -200px; }
+            .sidebar.show { left: 0; }
+            .main-panel { width: 100%; margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo"><h2>SGS</h2></div>
+            <div class="user"><i class="fa fa-user-circle"></i><span>gnunovero</span></div>
+            <ul class="nav">
+                <li><a href="index.html"><i class="fas fa-home"></i> <span>Inicio</span></a></li>
+                <li><a href="ingreso-agua.html"><i class="fas fa-tint"></i> <span>Ingresos de Agua</span></a></li>
+                <li class="active"><a href="ingreso-aire.html"><i class="fas fa-wind"></i> <span>Ingresos de Aire</span></a></li>
+                <li><a><i class="fas fa-sign-out-alt"></i> <span>Salir</span></a></li>
+            </ul>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="main-panel">
+            <nav class="navbar">
+                <button class="btn-menu" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <h5>Historial de Monitoreos - Aire</h5>
+            </nav>
+
+            <div class="content">
+                <!-- Filters Card -->
+                <div class="card">
+                    <div class="card-content">
+                        <div class="row align-items-end">
+                            <div class="col-lg-5 col-md-6 col-12 mb-3">
+                                <label for="filter-folio">Folio</label>
+                                <input type="text" id="filter-folio" class="form-control" placeholder="Buscar por N° de Folio">
+                            </div>
+                            <div class="col-lg-7 col-md-6 col-12 mb-3">
+                                <label class="d-none d-md-block">&nbsp;</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="btn-buscar"><i class="fa fa-search"></i> Buscar</button>
+                                    <button class="btn-limpiar" title="Restablecer filtros"><i class="fa fa-undo"></i></button>
+                                    <button id="btn-ver-mas" class="btn-ver-mas" title="Ver más filtros"><i class="fa fa-chevron-down"></i> Ver más</button>
+                                    <button onclick="window.location.href='ficha-preingreso-aire.html'" class="btn-nuevo ml-auto"><i class="fa fa-plus"></i> Nuevo Ingreso de Aire</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="filtros-adicionales" class="filtros-adicionales">
+                            <hr style="margin: 15px 0; border-color: #e0e0e0;">
+                            <div class="row">
+                                <div class="col-md-3 col-6 mb-3">
+                                    <label for="filter-tipo-muestreo">Tipo de Muestreo</label>
+                                    <select id="filter-tipo-muestreo" class="form-control"><option value="">Todos</option><option>FILTRO</option><option>MPS</option></select>
+                                </div>
+                                <div class="col-md-3 col-6 mb-3">
+                                    <label for="filter-estado">Estado</label>
+                                    <select id="filter-estado" class="form-control"><option value="">Todos</option><option>Por Ingresar</option><option>Recepcionado</option><option>Finalizado</option></select>
+                                </div>
+                                <div class="col-md-3 col-6 mb-3">
+                                    <label for="filter-matriz">Matriz</label>
+                                    <select id="filter-matriz" class="form-control"><option value="">Todos</option><option>AIRE_MP_FILTRO_47MM</option><option>AIRE_MP_FILTRO_HVOL</option><option>AIRE_MP_FILTRO_37MM</option><option>POLVO_SEDIMENTABLE</option></select>
+                                </div>
+                                <div class="col-md-3 col-6 mb-3">
+                                    <label for="filter-ol">Buscar OL</label>
+                                    <input type="text" id="filter-ol" class="form-control" placeholder="Buscar OL">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 col-6 mb-3">
+                                    <label for="filter-desde">Desde</label>
+                                    <input type="date" id="filter-desde" class="form-control">
+                                </div>
+                                <div class="col-md-3 col-6 mb-3">
+                                    <label for="filter-hasta">Hasta</label>
+                                    <input type="date" id="filter-hasta" class="form-control">
+                                </div>
+                                <div class="col-md-6 col-12 mb-3">
+                                    <label for="filter-cliente">Cliente</label>
+                                    <input type="text" id="filter-cliente" class="form-control" placeholder="Buscar por cliente">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document List -->
+                <div id="documentList">
+                    <!-- Card 1: Finalizado -->
+                    <div class="card document-card" 
+                         data-folio="15842"
+                         data-tipo-muestreo="MPS" 
+                         data-estado="Finalizado"
+                         data-matriz="POLVO_SEDIMENTABLE"
+                         data-ol="801598"
+                         data-cliente="CORP NACIONAL DEL COBRE DE CHILE"
+                         data-fecha="2025-10-04"
+                         data-muestras="15">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=15842&readonly=true&tipo-muestra=MPS&estado=Finalizado&numero-muestras=15&matriz=POLVO_SEDIMENTABLE" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15842</span></a>
+                                    <span class="badge badge-info">MPS</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-finalizado">Finalizado</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">801598</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">CORP NACIONAL DEL COBRE DE CHILE</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">POLVO_SEDIMENTABLE</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">Antofagasta Minerals</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">15</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">04/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Recepcionado -->
+                    <div class="card document-card"
+                         data-folio="15901"
+                         data-tipo-muestreo="FILTRO"
+                         data-estado="Recepcionado"
+                         data-matriz="AIRE_MP_FILTRO_47MM"
+                         data-ol="802105"
+                         data-cliente="ANTOFAGASTA MINERALS S.A." 
+                         data-fecha="2025-10-05"
+                         data-muestras="8">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=15901&readonly=true&tipo-muestra=FILTRO&estado=Recepcionado&numero-muestras=8&matriz=AIRE_MP_FILTRO_47MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15901</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-success">MP10</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-recepcionado">Recepcionado</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">802105</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">ANTOFAGASTA MINERALS S.A.</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">AIRE_MP_FILTRO_47MM</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">Proyecto Minera Los Pelambres</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">8</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">05/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Por Ingresar -->
+                    <div class="card document-card"
+                         data-folio="15796"
+                         data-tipo-muestreo="FILTRO"
+                         data-estado="Por Ingresar"
+                         data-matriz="AIRE_MP_FILTRO_HVOL"
+                         data-ol="803421"
+                         data-cliente="MINERA ESCONDIDA LTDA" 
+                         data-fecha="2025-10-02"
+                         data-muestras="12">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=15796&readonly=true&tipo-muestra=FILTRO&estado=Por Ingresar&numero-muestras=12&matriz=AIRE_MP_FILTRO_HVOL" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15796</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-secondary">MP2.5</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-por-ingresar">Por Ingresar</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">803421</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">MINERA ESCONDIDA LTDA</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">AIRE_MP_FILTRO_HVOL</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">Monitoreo Ambiental Q3</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">12</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">02/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Finalizado -->
+                    <div class="card document-card"
+                         data-folio="15823"
+                         data-tipo-muestreo="FILTRO"
+                         data-estado="Finalizado"
+                         data-matriz="AIRE_MP_FILTRO_37MM"
+                         data-ol="801645"
+                         data-cliente="CORP NACIONAL DEL COBRE DE CHILE" 
+                         data-fecha="2025-10-03"
+                         data-muestras="20">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=15823&readonly=true&tipo-muestra=FILTRO&estado=Finalizado&numero-muestras=20&matriz=AIRE_MP_FILTRO_37MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15823</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-success">MP10</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-finalizado">Finalizado</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">801645</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">CORP NACIONAL DEL COBRE DE CHILE</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">AIRE_MP_FILTRO_37MM</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">División Chuquicamata</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">20</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">03/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Finalizado -->
+                    <div class="card document-card"
+                         data-folio="16010"
+                         data-tipo-muestreo="FILTRO"
+                         data-estado="Finalizado"
+                         data-matriz="AIRE_MP_FILTRO_47MM"
+                         data-ol="804510"
+                         data-cliente="ANGLO AMERICAN SUR S.A." 
+                         data-fecha="2025-10-06"
+                         data-muestras="18">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=16010&readonly=true&tipo-muestra=FILTRO&estado=Finalizado&numero-muestras=18&matriz=AIRE_MP_FILTRO_47MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16010</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-success">MP10</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-finalizado">Finalizado</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">804510</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">ANGLO AMERICAN SUR S.A.</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">AIRE_MP_FILTRO_47MM</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">Monitoreo Los Bronces</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">18</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">06/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Por Ingresar -->
+                    <div class="card document-card"
+                         data-folio="16015"
+                         data-tipo-muestreo="MPS"
+                         data-estado="Por Ingresar"
+                         data-matriz="POLVO_SEDIMENTABLE"
+                         data-ol="805001"
+                         data-cliente="MINERA ESCONDIDA LTDA" 
+                         data-fecha="2025-10-07"
+                         data-muestras="5">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=16015&readonly=true&tipo-muestra=MPS&estado=Por Ingresar&numero-muestras=5&matriz=POLVO_SEDIMENTABLE" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16015</span></a>
+                                    <span class="badge badge-info">MPS</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-por-ingresar">Por Ingresar</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">805001</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">MINERA ESCONDIDA LTDA</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">POLVO_SEDIMENTABLE</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">Estudio Calidad de Aire</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">5</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">07/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 7: Recepcionado -->
+                    <div class="card document-card"
+                         data-folio="16022"
+                         data-tipo-muestreo="FILTRO"
+                         data-estado="Recepcionado"
+                         data-matriz="AIRE_MP_FILTRO_37MM"
+                         data-ol="806112"
+                         data-cliente="CORP NACIONAL DEL COBRE DE CHILE" 
+                         data-fecha="2025-10-08"
+                         data-muestras="25">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=16022&readonly=true&tipo-muestra=FILTRO&estado=Recepcionado&numero-muestras=25&matriz=AIRE_MP_FILTRO_37MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16022</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-secondary">MP2.5</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-recepcionado">Recepcionado</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">806112</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">CORP NACIONAL DEL COBRE DE CHILE</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">AIRE_MP_FILTRO_37MM</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">División Andina</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">25</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">08/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 8: Finalizado -->
+                    <div class="card document-card"
+                         data-folio="16030"
+                         data-tipo-muestreo="FILTRO"
+                         data-estado="Finalizado"
+                         data-matriz="AIRE_MP_FILTRO_HVOL"
+                         data-ol="807834"
+                         data-cliente="ANTOFAGASTA MINERALS S.A." 
+                         data-fecha="2025-10-09"
+                         data-muestras="10">
+                        <div class="card-body">
+                            <div class="document-card-header">
+                                <div class="document-title-section">
+                                    <a href="ficha-preingreso-aire.html?folio=16030&readonly=true&tipo-muestra=FILTRO&estado=Finalizado&numero-muestras=10&matriz=AIRE_MP_FILTRO_HVOL" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16030</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-success">MP10</span>
+                                </div>
+                                <div class="document-actions-header">
+                                    <span class="badge badge-finalizado">Finalizado</span>
+                                </div>
+                            </div>
+                            <div class="document-info-line">
+                                <div class="document-info-item"><span><span class="info-label-inline">OL:</span> <span class="info-value-inline">807834</span></span></div>
+                                <div class="document-info-item"><span><span class="info-label-inline">Cliente:</span> <span class="info-value-inline">ANTOFAGASTA MINERALS S.A.</span></span></div>
+                                <div class="flex-break"></div>
+                                <div class="document-info-item"><i class="fa fa-layer-group"></i><span><span class="info-label-inline">Matriz:</span> <span class="info-value-inline">AIRE_MP_FILTRO_HVOL</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-tasks"></i><span><span class="info-label-inline">Proyecto:</span> <span class="info-value-inline">Proyecto Zaldívar</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-vial"></i><span><span class="info-label-inline">Muestras:</span> <span class="info-value-inline">10</span></span></div>
+                                <div class="document-info-item"><i class="fa fa-calendar-alt"></i><span><span class="info-label-inline">Envío:</span> <span class="info-value-inline">09/10/2025</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <footer class="footer">
+                <div class="copyright">© 2025, made by <a href="#">SGS TI</a></div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function toggleSidebar() {
+                document.getElementById('sidebar').classList.toggle('show');
+            }
+
+            document.querySelector('.btn-menu').addEventListener('click', toggleSidebar);
+
+            // Lógica del botón "Ver más"
+            const btnVerMas = document.getElementById('btn-ver-mas');
+            const filtrosAdicionales = document.getElementById('filtros-adicionales');
+            if (btnVerMas) {
+                btnVerMas.addEventListener('click', function() {
+                    const isExpanded = filtrosAdicionales.classList.contains('show');
+                    if (isExpanded) {
+                        filtrosAdicionales.classList.remove('show');
+                        btnVerMas.innerHTML = '<i class="fa fa-chevron-down"></i> Ver más';
+                    } else {
+                        filtrosAdicionales.classList.add('show');
+                        btnVerMas.innerHTML = '<i class="fa fa-chevron-up"></i> Ver menos';
+                    }
+                });
+            }
+
+            // --- Lógica de Filtros ---
+            const btnBuscar = document.querySelector('.btn-buscar');
+            const btnLimpiar = document.querySelector('.btn-limpiar');
+            const documentCards = document.querySelectorAll('.document-card');
+
+            function applyFilters() {
+                const filters = {
+                    folio: document.getElementById('filter-folio').value.toLowerCase(),
+                    tipoMuestreo: document.getElementById('filter-tipo-muestreo').value,
+                    estado: document.getElementById('filter-estado').value,
+                    matriz: document.getElementById('filter-matriz').value,
+                    ol: document.getElementById('filter-ol').value.toLowerCase(),
+                    desde: document.getElementById('filter-desde').value, // YYYY-MM-DD
+                    hasta: document.getElementById('filter-hasta').value, // YYYY-MM-DD
+                    cliente: document.getElementById('filter-cliente').value.toLowerCase()
+                };
+
+                documentCards.forEach(card => {
+                    const cardData = {
+                        folio: card.dataset.folio.toLowerCase(),
+                        tipoMuestreo: card.dataset.tipoMuestreo,
+                        estado: card.dataset.estado,
+                        matriz: card.dataset.matriz,
+                        muestras: card.dataset.muestras,
+                        ol: card.dataset.ol.toLowerCase(),
+                        fecha: card.dataset.fecha, // YYYY-MM-DD
+                        cliente: card.dataset.cliente.toLowerCase()
+                    };
+
+                    const showCard = 
+                        (cardData.folio.includes(filters.folio)) &&
+                        (filters.tipoMuestreo === "" || cardData.tipoMuestreo === filters.tipoMuestreo) &&
+                        (filters.estado === "" || cardData.estado === filters.estado) &&
+                        (filters.matriz === "" || cardData.matriz === filters.matriz) &&
+                        (cardData.ol.includes(filters.ol)) &&
+                        (cardData.cliente.includes(filters.cliente)) &&
+                        (!filters.desde || cardData.fecha >= filters.desde) &&
+                        (!filters.hasta || cardData.fecha <= filters.hasta);
+
+                    card.style.display = showCard ? 'block' : 'none';
+                });
+            }
+
+            function resetFilters() {
+                document.getElementById('filter-folio').value = '';
+                document.getElementById('filter-tipo-muestreo').value = '';
+                document.getElementById('filter-estado').value = '';
+                document.getElementById('filter-matriz').value = '';
+                document.getElementById('filter-ol').value = '';
+                document.getElementById('filter-desde').value = '';
+                document.getElementById('filter-hasta').value = '';
+                document.getElementById('filter-cliente').value = '';
+                applyFilters();
+            }
+
+            btnBuscar.addEventListener('click', applyFilters);
+            btnLimpiar.addEventListener('click', resetFilters);
+        });
+    </script>
+</body>
+</html>
