@@ -492,126 +492,7 @@
                 background: #4fa0a0;
             }
 
-        /* Resumen */
-        #resumen {
-            display: none
-        }
-
-            #resumen.active {
-                display: block
-            }
-
-        .timeline-badge {
-            background: #ef8157;
-            color: #fff;
-            padding: 8px 20px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 20px
-        }
-
-        .timeline {
-            position: relative;
-            padding: 20px 0
-        }
-
-            .timeline:before {
-                content: '';
-                position: absolute;
-                left: 30px;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background: #ddd
-            }
-
-        .timeline-item {
-            position: relative;
-            padding-left: 70px;
-            margin-bottom: 30px
-        }
-
-        .timeline-icon {
-            position: absolute;
-            left: 10px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 18px;
-            z-index: 1
-        }
-
-            .timeline-icon.pre-ingreso {
-                background: #5fb3b3
-            }
-
-            .timeline-icon.recepcion {
-                background: #ef8157
-            }
-
-        .timeline-card {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1)
-        }
-
-        .timeline-card-header {
-            font-weight: 600;
-            color: #66615b;
-            margin-bottom: 10px;
-            font-size: 14px
-        }
-
-        .timeline-card-body p {
-            margin: 5px 0;
-            font-size: 13px;
-            color: #666
-        }
-
-        .link-descarga {
-            color: #5fb3b3;
-            text-decoration: none;
-            font-size: 13px;
-            display: inline-block;
-            margin-top: 8px
-        }
-
-            .link-descarga:hover {
-                color: #4fa0a0
-            }
-
-        .info-value {
-            background: #f5f5f5;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #252422;
-            min-height: 38px
-        }
-
-        .badge-ingresado {
-            background: #27ae60;
-            color: #fff;
-            border-radius: 999px;
-            padding: 4px 10px;
-            font-size: 12px;
-            letter-spacing: .3px
-        }
-
-        .resumen-container .card {
-            margin-bottom: 16px
-        }
-
-        .resumen-header {
-            gap: 12px
-        }
+        /* Resumen (eliminado) */
 
         /* Responsive */
         @media (max-width:575px) {
@@ -1013,15 +894,15 @@
                             <div class="row mb-3">
                                 <div class="col-md-4">
                                     <label>Solicitado por:</label>
-                                    <input type="text" class="form-control" id="solicitadoPor" value="gnunovero" readonly>
+                                    <input type="text" class="form-control" id="solicitadoPor" value="gnunovero">
                                 </div>
                                 <div class="col-md-4">
                                     <label>Atención a:</label>
-                                    <input type="text" class="form-control" id="atencionA" readonly>
+                                    <input type="text" class="form-control" id="atencionA">
                                 </div>
                                 <div class="col-md-4">
                                     <label>ADC Responsable:</label>
-                                    <input type="text" class="form-control" id="adcResponsable" readonly>
+                                    <input type="text" class="form-control" id="adcResponsable">
                                 </div>
                             </div>
                         </div>
@@ -1048,7 +929,8 @@
                                 <label>Tipo de Filtro</label>
                                 <div>
                                     <label class="mr-3 d-inline-block"><input type="radio" name="tipoFiltro" value="mp10"> MP10</label>
-                                    <label class="d-inline-block"><input type="radio" name="tipoFiltro" value="mp25"> MP2.5</label>
+                                    <label class="mr-3 d-inline-block"><input type="radio" name="tipoFiltro" value="mp25"> MP2.5</label>
+                                    <label class="d-inline-block"><input type="radio" name="tipoFiltro" value="hig"> HIG</label>
                                 </div>
                             </div>
                         </div>
@@ -1196,9 +1078,9 @@
         // --- Datos base ---
         const clientesData = { codelco: { nombre: 'CORP NACIONAL DEL COBRE DE CHILE', rut: '61704000-K', ols: [{ codigo: '801598', adc: 'kpizarro', atencionA: 'Juan Pérez', proyectos: ['Proyecto Chuquicamata', 'Proyecto Radomiro Tomic', 'Proyecto Ministro Hales'] }, { codigo: '801645', adc: 'mrodriguez', atencionA: 'María González', proyectos: ['Proyecto El Teniente', 'Proyecto Andina'] }] }, antofagasta: { nombre: 'ANTOFAGASTA MINERALS S.A.', rut: '96.955.310-7', ols: [{ codigo: '802105', adc: 'lmartinez', atencionA: 'Ana Rojas', proyectos: ['Proyecto Los Pelambres', 'Proyecto Centinela'] }] }, escondida: { nombre: 'MINERA ESCONDIDA LTDA', rut: '79.691.790-6', ols: [{ codigo: '803421', adc: 'rcastillo', atencionA: 'Luis Torres', proyectos: ['Proyecto Escondida Principal', 'Proyecto Escondida Norte'] }] } };
 
-        const puntosMuestreoPorCliente = { codelco: [{ id: 'MPS-CDL-001', lugar: 'Planta Concentradora', direccion: 'Sector Norte, Chuquicamata', coordenadas: '-22.3095, -68.9029' }, { id: 'MPS-CDL-002', lugar: 'Área de Chancado', direccion: 'Sector Este, Chuquicamata', coordenadas: '-22.3105, -68.9039' }, { id: 'MPS-CDL-003', lugar: 'Depósito de Relaves', direccion: 'Sector Sur, El Teniente', coordenadas: '-34.0895, -70.4512' }], antofagasta: [{ id: 'MPS-ANT-001', lugar: 'Planta de Procesos', direccion: 'Los Pelambres, Salamanca', coordenadas: '-31.7321, -70.5689' }, { id: 'MPS-ANT-002', lugar: 'Tranque de Relaves', direccion: 'Sector El Mauro', coordenadas: '-31.8456, -70.4521' }], escondida: [{ id: 'MPS-ESC-001', lugar: 'Mina Rajo Abierto', direccion: 'Escondida, Antofagasta', coordenadas: '-24.2345, -69.0567' }, { id: 'MPS-ESC-002', lugar: 'Puerto de Embarque', direccion: 'Coloso, Antofagasta', coordenadas: '-23.7521, -70.4456' }] };
+        const puntosMuestreoPorCliente = { codelco: [{ id: 'MPS-CDL-001', lugar: 'Planta Concentradora' }, { id: 'MPS-CDL-002', lugar: 'Área de Chancado' }, { id: 'MPS-CDL-003', lugar: 'Depósito de Relaves' }], antofagasta: [{ id: 'MPS-ANT-001', lugar: 'Planta de Procesos' }, { id: 'MPS-ANT-002', lugar: 'Tranque de Relaves' }], escondida: [{ id: 'MPS-ESC-001', lugar: 'Mina Rajo Abierto' }, { id: 'MPS-ESC-002', lugar: 'Puerto de Embarque' }] };
 
-        const filtrosPorCliente = { codelco: { mp10: [{ id: 'FLT-MP10-CDL-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP10-CDL-002', pesoOriginal: '0.5198 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-CDL-003', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-15' }], mp25: [{ id: 'FLT-MP25-CDL-001', pesoOriginal: '0.4987 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP25-CDL-002', pesoOriginal: '0.5012 g', fechaCreacion: '2025-09-20' }] }, antofagasta: { mp10: [{ id: 'FLT-MP10-ANT-001', pesoOriginal: '0.5245 g', fechaCreacion: '2025-10-03' }, { id: 'FLT-MP10-ANT-002', pesoOriginal: '0.5212 g', fechaCreacion: '2025-10-04' }], mp25: [{ id: 'FLT-MP25-ANT-001', pesoOriginal: '0.5023 g', fechaCreacion: '2025-10-03' }] }, escondida: { mp10: [{ id: 'FLT-MP10-ESC-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-ESC-002', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-18' }], mp25: [{ id: 'FLT-MP25-ESC-001', pesoOriginal: '0.5012 g', fechaCreacion: '2025-10-02' }] } };
+        const filtrosPorCliente = { codelco: { mp10: [{ id: 'FLT-MP10-CDL-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP10-CDL-002', pesoOriginal: '0.5198 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-CDL-003', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-15' }], mp25: [{ id: 'FLT-MP25-CDL-001', pesoOriginal: '0.4987 g', fechaCreacion: '2025-10-01' }, { id: 'FLT-MP25-CDL-002', pesoOriginal: '0.5012 g', fechaCreacion: '2025-09-20' }], hig: [{ id: 'FLT-HIG-CDL-001', pesoOriginal: '1.1234 g', fechaCreacion: '2025-10-05' }] }, antofagasta: { mp10: [{ id: 'FLT-MP10-ANT-001', pesoOriginal: '0.5245 g', fechaCreacion: '2025-10-03' }, { id: 'FLT-MP10-ANT-002', pesoOriginal: '0.5212 g', fechaCreacion: '2025-10-04' }], mp25: [{ id: 'FLT-MP25-ANT-001', pesoOriginal: '0.5023 g', fechaCreacion: '2025-10-03' }], hig: [{ id: 'FLT-HIG-ANT-001', pesoOriginal: '1.1255 g', fechaCreacion: '2025-10-06' }] }, escondida: { mp10: [{ id: 'FLT-MP10-ESC-001', pesoOriginal: '0.5234 g', fechaCreacion: '2025-10-02' }, { id: 'FLT-MP10-ESC-002', pesoOriginal: '0.5267 g', fechaCreacion: '2025-09-18' }], mp25: [{ id: 'FLT-MP25-ESC-001', pesoOriginal: '0.5012 g', fechaCreacion: '2025-10-02' }], hig: [{ id: 'FLT-HIG-ESC-001', pesoOriginal: '1.1289 g', fechaCreacion: '2025-10-07' }] } };
 
         // --- Estado ---
         let puntosSeleccionados = []; let clienteActual = '';
@@ -1232,7 +1114,7 @@
                 } else {
                     tr.innerHTML = `<td style="text-align:center;font-weight:bold;">${index + 1}</td>
               <td>${p.id}</td>
-              <td><div style="font-weight:500;">${p.lugar}</div><div style="font-size:11px;color:#666;">${p.direccion}</div></td>
+              <td><div style="font-weight:500;">${p.lugar}</div></td>
               <td><input type="date" class="form-control" style="display:inline-block;width:48%;margin-right:2%;font-size:12px;" value="${p.fechaInicio || ''}" data-idx="${index}" data-type="mps" data-field="fechaInicio">
                   <input type="time" class="form-control" style="display:inline-block;width:48%;font-size:12px;" value="${p.horaInicio || ''}" data-idx="${index}" data-type="mps" data-field="horaInicio"></td>
               <td><input type="date" class="form-control" style="display:inline-block;width:48%;margin-right:2%;font-size:12px;" value="${p.fechaTermino || ''}" data-idx="${index}" data-type="mps" data-field="fechaTermino">
@@ -1250,11 +1132,9 @@
         function abrirModalMPS() {
             const titulo = qs('#modalPuntosTitulo'), tbody = qs('#tablaPuntosModal'), thead = qs('#modalTableHeader'), pts = puntosMuestreoPorCliente[clienteActual] || [];
             titulo.textContent = 'Seleccionar Puntos de Muestreo MPS';
-            
             // Agregar botones si no existen
             let searchDiv = qs('.modal-search');
             let actionsDiv = qs('.modal-search-actions');
-            
             if (!actionsDiv) {
                 // Mover input de búsqueda a nuevo contenedor
                 const searchInput = qs('#searchPuntos');
@@ -1267,35 +1147,25 @@
                 btnNuevo.className = 'btn-nuevo-punto';
                 btnNuevo.id = 'btnNuevoPunto';
                 btnNuevo.textContent = 'Nuevo Punto';
-                
-                const btnMasivo = document.createElement('button');
-                btnMasivo.className = 'btn-nuevo-punto';
-                btnMasivo.id = 'btnMasivo';
-                btnMasivo.textContent = 'Masivo';
-                
                 actionsDiv.appendChild(btnNuevo);
-                actionsDiv.appendChild(btnMasivo);
-                
                 searchDiv.parentNode.insertBefore(actionsDiv, searchDiv);
                 searchDiv.style.display = 'none';
             }
             actionsDiv.style.display = 'flex';
-            
-            thead.innerHTML = '<th style="width:50px"><input type="checkbox" id="selectAll"></th><th>ID MUESTRA</th><th>LUGAR / DIRECCIÓN</th><th>COORDENADAS</th>';
+            thead.innerHTML = '<th style="width:50px"><input type="checkbox" id="selectAll"></th><th>ID MUESTRA</th><th>LUGAR DE MUESTREO</th>';
             tbody.innerHTML = '';
             pts.forEach((p, idx) => {
                 const ya = puntosSeleccionados.some(x => x.id === p.id);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td><input type="checkbox" class="checkbox-punto" data-index="${idx}" data-tipo="mps" ${ya ? 'checked' : ''}></td>
                           <td>${p.id}</td>
-                          <td><div><strong>${p.lugar}</strong></div><div style="font-size:11px;color:#666;">${p.direccion}</div></td>
-                          <td>${p.coordenadas}</td>`;
+                          <td><div><strong>${p.lugar}</strong></div></td>`;
                 tbody.appendChild(tr);
             });
             modal.classList.add('show');
         }
 
-        function abrirModalFiltros(tipoFiltro) {
+        function abrirModalFiltros(tipoFiltro) { // En modal de puntos de muestreo quitar referencias a la coordenadas
             const titulo = qs('#modalPuntosTitulo'), tbody = qs('#tablaPuntosModal'), thead = qs('#modalTableHeader'), arr = (filtrosPorCliente[clienteActual] || {})[tipoFiltro] || [];
             titulo.textContent = `Seleccionar Filtros ${tipoFiltro.toUpperCase()}`;
             
@@ -1364,31 +1234,14 @@
 
         // Abrir modal agregar punto
         function abrirModalAgregarPunto() {
-            // Cargar lugares de monitoreo según cliente
-            const selectLugar = qs('#lugarMonitoreoNuevoPunto');
-            selectLugar.innerHTML = '<option value="">Seleccione un lugar</option>';
-            
-            if (clienteActual && clientesData[clienteActual]) {
-                const cliente = clientesData[clienteActual];
-                
-                // Agregar proyectos como lugares
-                cliente.ols.forEach(ol => {
-                    ol.proyectos.forEach(proyecto => {
-                        const option = document.createElement('option');
-                        option.value = proyecto;
-                        option.textContent = proyecto;
-                        selectLugar.appendChild(option);
-                    });
-                });
-            }
-            
+            // Limpiar campos
+            qs('#lugarMonitoreoNuevoPunto').value = '';
+            qs('#lugarMonitoreoNuevoPunto').disabled = false;
+            qs('#nombrePuntoNuevo').value = '';
+
             // Preseleccionar matriz del paso 1
             const matrizPaso1 = qs('#matriz').value;
             qs('#matrizNuevoPunto').value = matrizPaso1 || '';
-            
-            // Limpiar campos
-            qs('#nombrePuntoNuevo').value = '';
-            qs('#direccionMonitoreoNuevo').value = '';
             
             modalAgregarPunto.classList.add('show');
         }
@@ -1401,34 +1254,23 @@
         // Guardar nuevo punto
         function guardarNuevoPunto() {
             const matriz = qs('#matrizNuevoPunto').value;
-            const lugar = qs('#lugarMonitoreoNuevoPunto').value;
+            const lugar = qs('#lugarMonitoreoNuevoPunto').value.trim();
             const nombre = qs('#nombrePuntoNuevo').value.trim();
-            const direccion = qs('#direccionMonitoreoNuevo').value.trim();
             
             // Validar campos
             if (!matriz) {
                 alert('Por favor, seleccione una matriz');
                 return;
             }
-            if (!lugar) {
-                alert('Por favor, seleccione un lugar de monitoreo');
-                return;
-            }
             if (!nombre) {
                 alert('Por favor, ingrese el nombre del punto');
-                return;
-            }
-            if (!direccion) {
-                alert('Por favor, ingrese la dirección de monitoreo');
                 return;
             }
             
             // Crear nuevo punto con mapeo correcto
             const nuevoPunto = {
                 id: nombre,                    // Nombre del punto → ID Muestra
-                lugar: lugar,                  // Lugar de Monitoreo → Lugar en grilla
-                direccion: direccion,          // Dirección → Dirección en grilla
-                coordenadas: 'N/A',
+                lugar: lugar || 'N/A',         // Lugar de Monitoreo → Lugar en grilla
                 tipo: 'mps'
             };
             
@@ -1449,230 +1291,7 @@
         }
         // ===== FIN FUNCIONALIDAD AGREGAR NUEVO PUNTO =====
 
-        // ===== MODAL MASIVO (SOLO VISUAL) =====
-        let modalAgregarMasivo;
-
-        function abrirModalMasivo() {
-            // Preseleccionar matriz del paso 1
-            const matrizPaso1 = qs('#matriz').value;
-            qs('#matrizMasivo').value = matrizPaso1 || '';
-            
-            // Cargar lugares de monitoreo
-            const selectLugar = qs('#lugarMonitoreoMasivo');
-            selectLugar.innerHTML = '<option value="">Seleccione un lugar</option>';
-            
-            if (clienteActual && clientesData[clienteActual]) {
-                const cliente = clientesData[clienteActual];
-                cliente.ols.forEach(ol => {
-                    ol.proyectos.forEach(proyecto => {
-                        const option = document.createElement('option');
-                        option.value = proyecto;
-                        option.textContent = proyecto;
-                        selectLugar.appendChild(option);
-                    });
-                });
-            }
-            
-            // Limpiar textarea
-            qs('#dataMasivo').value = '';
-            
-            modalAgregarMasivo.classList.add('show');
-        }
-
-        function cerrarModalMasivo() {
-            modalAgregarMasivo.classList.remove('show');
-        }
         // ===== FIN MODAL MASIVO =====
-
-        // ===== GENERAR PDF ACTA DE PRE-INGRESO =====
-        function generarPDFActa() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // Obtener datos guardados
-            const folio = sessionStorage.getItem('folioPreIngreso');
-            const datosStr = sessionStorage.getItem('datosPreIngreso');
-            if (!folio || !datosStr) {
-                alert('No hay datos de pre-ingreso para generar el PDF');
-                return;
-            }
-            
-            const datos = JSON.parse(datosStr);
-            const cliente = clientesData[clienteActual];
-            const olSeleccionada = datos.ol.split('-');
-            const ol = cliente.ols[parseInt(olSeleccionada[1], 10)];
-            
-            let y = 20;
-            
-            // Título
-            doc.setFontSize(14);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`ACTA DE PRE-INGRESO N° ${folio}`, 105, y, { align: 'center' });
-            y += 12;
-            
-            // Información Cliente
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Información Cliente', 20, y);
-            doc.setDrawColor(0);
-            doc.setLineWidth(0.5);
-            doc.line(20, y + 1, 190, y + 1);
-            y += 7;
-            
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
-            doc.text('SOLICITANTE', 20, y);
-            doc.text(': ' + cliente.nombre, 70, y);
-            y += 5;
-            doc.text('ADC Responsable', 20, y);
-            doc.text(': ' + datos.adcResponsable, 70, y);
-            y += 5;
-            doc.text('OL', 20, y);
-            doc.text(': ' + ol.codigo, 70, y);
-            y += 5;
-            doc.text('Contacto', 20, y);
-            doc.text(': ' + datos.atencionA, 70, y);
-            y += 8;
-            
-            // Información General
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Información General', 20, y);
-            doc.line(20, y + 1, 190, y + 1);
-            y += 7;
-            
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Tipo de muestra', 20, y);
-            doc.text(': ' + (datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'), 70, y);
-            y += 5;
-            doc.text('Origen de las muestras (Matriz)', 20, y);
-            doc.text(': ' + datos.matriz, 70, y);
-            y += 5;
-            doc.text('Muestreados por', 20, y);
-            doc.text(': ' + (datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'CLIENTE'), 70, y);
-            y += 5;
-            doc.text('Destino de la muestra', 20, y);
-            doc.text(': Laboratorio SGS Santiago', 70, y);
-            y += 5;
-            doc.text('Número de muestras', 20, y);
-            doc.text(': ' + datos.puntosSeleccionados.length, 70, y);
-            y += 5;
-            doc.text('Plan', 20, y);
-            doc.text(': ' + datos.plan, 70, y);
-            y += 5;
-            doc.text('Generación de JOB', 20, y);
-            const jobText = datos.generacionJob === 'total' 
-                ? 'Generar un JOB para la totalidad de los puntos ingresados' 
-                : 'Generar un JOB por punto ingresado';
-            doc.text(': ' + jobText, 70, y);
-            y += 8;
-            
-            // Puntos de Monitoreo
-            doc.setFontSize(10);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Puntos de Monitoreo', 20, y);
-            doc.line(20, y + 1, 190, y + 1);
-            y += 5;
-            
-            const tablaPuntos = [];
-            datos.puntosSeleccionados.forEach((p, idx) => {
-                // ID MUESTRA
-                let idMuestra = p.id || 'N/A';
-                if (p.tipo === 'filtro') {
-                    idMuestra += `\nFiltro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}`;
-                }
-                
-                // LUGAR DE MUESTREO
-                let lugarMuestreo = '';
-                if (p.tipo === 'filtro') {
-                    lugarMuestreo = p.lugarMuestreo || '';
-                } else {
-                    lugarMuestreo = p.lugar || 'N/A';
-                    if (p.direccion) {
-                        lugarMuestreo += `\n${p.direccion}`;
-                    }
-                }
-                
-                // FECHA/HORA INICIO
-                const fechaInicio = p.fechaInicio && p.horaInicio 
-                    ? `${p.fechaInicio} ${p.horaInicio}` 
-                    : p.fechaInicio || '';
-                
-                // FECHA/HORA TÉRMINO
-                const fechaTermino = p.fechaTermino && p.horaTermino 
-                    ? `${p.fechaTermino} ${p.horaTermino}` 
-                    : p.fechaTermino || '';
-                
-                // COMENTARIOS
-                const comentario = p.comentario && p.comentario.trim() 
-                    ? p.comentario 
-                    : 'Sin comentario';
-                
-                tablaPuntos.push([
-                    idx + 1, 
-                    idMuestra, 
-                    lugarMuestreo, 
-                    fechaInicio, 
-                    fechaTermino,
-                    comentario
-                ]);
-            });
-            
-            doc.autoTable({
-                startY: y,
-                head: [['#', 'ID MUESTRA', 'LUGAR DE MUESTREO', 'FECHA/HORA INICIO', 'FECHA/HORA TÉRMINO', 'COMENTARIOS']],
-                body: tablaPuntos,
-                theme: 'grid',
-                styles: { 
-                    fontSize: 7, 
-                    cellPadding: 2,
-                    lineColor: [200, 200, 200],
-                    lineWidth: 0.1
-                },
-                headStyles: { 
-                    fillColor: [240, 240, 240], 
-                    textColor: [0, 0, 0], 
-                    fontStyle: 'bold',
-                    fontSize: 7
-                },
-                columnStyles: {
-                    0: { cellWidth: 8, halign: 'center' },
-                    1: { cellWidth: 35 },
-                    2: { cellWidth: 35 },
-                    3: { cellWidth: 32 },
-                    4: { cellWidth: 32 },
-                    5: { cellWidth: 38 }
-                }
-            });
-            
-            y = doc.lastAutoTable.finalY + 8;
-            
-            // Información adicional
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
-            doc.text('Fecha de Transporte', 20, y);
-            doc.text(': ' + datos.fechaTransporte + ' ' + datos.horaTransporte, 70, y);
-            y += 5;
-            doc.text('Responsable del monitoreo', 20, y);
-            doc.text(': ' + datos.responsable, 70, y);
-            y += 5;
-            doc.text('Observaciones de Terreno', 20, y);
-            doc.text(': ' + datos.observaciones, 70, y);
-            y += 15;
-            
-            // Footer
-            doc.setFontSize(7);
-            doc.setTextColor(100);
-            const footerY = 280;
-            doc.text('SGS Chile Ltda. Santiago: Puerto Madero #130, Pudahuel | Antofagasta: Av. Pedro Aguirre Cerda #7367 | Concepción: Av. Américo Vespucio #820 | Pto. Varas: Ruta 5 Sur KM 103', 105, footerY, { align: 'center' });
-            doc.text('T (56-2) 289 89500, (56-2) 289 89512, (56-55) 223 4098, (56-55) 223 4596, (56-41) 241 6577, (56-65) 232 1800, (56-2) 232 1801. www.sgs.com', 105, footerY + 3, { align: 'center' });
-            
-            // Descargar
-            doc.save(`Acta_PreIngreso_${folio}.pdf`);
-        }
-        // ===== FIN GENERAR PDF =====
-
 
         function confirmarSeleccion() {
             if (!clienteActual) return;
@@ -1730,186 +1349,7 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
             }
         }
 
-        // --- Resumen (inyecta dentro de .content) ---
-        function mostrarResumen() {
-            // Ocultar cards del formulario y título principal
-            qsa('.content .card').forEach(c => c.style.display = 'none');
-            const h1 = qs('.content h1'); if (h1) h1.style.display = 'none';
-
-            const folio = sessionStorage.getItem('folioPreIngreso');
-            const datos = JSON.parse(sessionStorage.getItem('datosPreIngreso'));
-            const info = clientesData[datos.cliente];
-            const fAhora = new Date().toLocaleString('es-CL');
-            const fHoy = new Date().toLocaleDateString('es-CL');
-            const [k, i] = datos.ol.split('-');
-            const olCodigo = info.ols[parseInt(i, 10)].codigo;
-
-            const filas = datos.puntosSeleccionados.map((p, idx) => {
-                const ini = p.fechaInicio && p.horaInicio ? `${p.fechaInicio} ${p.horaInicio}` : p.fechaInicio || '';
-                const fin = p.fechaTermino && p.horaTermino ? `${p.fechaTermino} ${p.horaTermino}` : p.fechaTermino || '';
-                const lugar = p.tipo === 'filtro'
-                    ? (p.lugarMuestreo || '')
-                    : `<div style="font-weight:500;">${p.lugar}</div><div style="font-size:11px;color:#666;">${p.direccion}</div>`;
-                const det = p.tipo === 'filtro'
-                    ? `<div style="font-size:11px;color:#666;">Filtro ${p.tipoFiltro.toUpperCase()} - Creado: ${p.fechaCreacion}</div>`
-                    : '';
-                const comentario = p.comentario && p.comentario.trim() ? p.comentario : '<span style="color:#999;font-style:italic">Sin comentario</span>';
-                return `<tr>
-              <td style="text-align:center;font-weight:bold;">${idx + 1}</td>
-              <td>${p.id}${det}</td>
-              <td>${lugar}</td>
-              <td>${ini}</td>
-              <td>${fin}</td>
-              <td style="max-width: 300px; word-wrap: break-word;">${comentario}</td>
-            </tr>`;
-            }).join('');
-
-            const html = `
-          <div class="resumen-container" id="resumen" class="active">
-            <div class="resumen-header" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-              <div style="display:flex;align-items:center;gap:10px">
-                <i class="fas fa-wind" style="background:#ef8157;color:#fff;width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px"></i>
-                <span style="font-size:16px;color:#666">Ficha de Monitoreo</span>
-              </div>
-              <div style="display:flex;gap:10px;flex-wrap:wrap">
-                <button id="btnVolverFormulario" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver al Formulario</button>
-              </div>
-            </div>
-
-            <div class="card"><div class="card-content">
-              <h2 style="color:#ef8157;font-size:20px;margin-bottom:0"># Folio ${folio}</h2>
-            </div></div>
-
-            <div class="card"><div class="card-content">
-              <h5>Información general del cliente</h5>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label>Cliente</label>
-                  <div class="info-value">${info.rut} - ${info.nombre}</div>
-                </div>
-                <div class="col-md-6">
-                  <label>OL</label>
-                  <div class="info-value">${olCodigo}</div>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-12">
-                  <label>Proyecto</label>
-                  <div class="info-value">${datos.proyecto || 'Default project'}</div>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-4"><label>Solicitado por:</label><div class="info-value">${datos.solicitadoPor}</div></div>
-                <div class="col-md-4"><label>Atención a:</label><div class="info-value">${datos.atencionA}</div></div>
-                <div class="col-md-4"><label>ADC Responsable:</label><div class="info-value">${datos.adcResponsable}</div></div>
-              </div>
-            </div></div>
-
-            <div class="card"><div class="card-content">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                <h5 class="mb-0">Información general</h5>
-                <div style="display:flex;align-items:center;gap:15px">
-                  <span class="badge-ingresado">INGRESADO</span>
-                  <span style="font-size:14px;color:#666">Fecha: ${fHoy}</span>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label>Tipo Muestreo</label>
-                  <div class="info-value">${datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'}</div>
-                </div>
-                ${datos.tipoMuestreo === 'filtros' && datos.tipoFiltro ? `
-                <div class="col-md-6">
-                  <label>Tipo de Filtro</label>
-                  <div class="info-value">${datos.tipoFiltro.toUpperCase()}</div>
-                </div>`: '<div class="col-md-6"></div>'}
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-6"><label>Muestreado por:</label><div class="info-value">${datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'Cliente'}</div></div>
-                <div class="col-md-6"><label>Matriz</label><div class="info-value">${datos.matriz}</div></div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-12"><label>Plan</label><div class="info-value">${datos.plan}</div></div>
-              </div>
-              <div class="row">
-                <div class="col-md-12"><label>Generación de JOB</label>
-                  <div class="info-value">${datos.generacionJob === 'total'
-                    ? 'Generar un JOB para la totalidad de los puntos ingresados'
-                    : 'Generar un JOB por punto ingresado'}</div>
-                </div>
-              </div>
-            </div></div>
-
-            <div class="card"><div class="card-content">
-              <h5>Puntos de Muestreo</h5>
-              <div class="table-responsive mb-3">
-                <table class="table">
-                  <thead>
-                    <tr><th style="width:50px">#</th><th>ID MUESTRA</th><th>LUGAR DE MUESTREO</th><th>FECHA/HORA INICIO</th><th>FECHA/HORA TÉRMINO</th><th>COMENTARIOS</th></tr>
-                  </thead>
-                  <tbody>${filas}</tbody>
-                </table>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-12"><strong>Cantidad de muestras ingresadas: ${datos.puntosSeleccionados.length}</strong></div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-md-4"><label>Responsable de Muestreo</label><div class="info-value">${datos.responsable}</div></div>
-                <div class="col-md-4"><label>Fecha Transporte</label><div class="info-value">${datos.fechaTransporte}</div></div>
-                <div class="col-md-4"><label>Hora Transporte</label><div class="info-value">${datos.horaTransporte}</div></div>
-              </div>
-              <div class="row">
-                <div class="col-md-12"><label>Observaciones de terreno</label><div class="info-value">${datos.observaciones}</div></div>
-              </div>
-            </div></div>
-
-            <div class="card"><div class="card-content">
-              <div class="timeline-badge">TIME LINE</div>
-              <div class="timeline">
-                <div class="timeline-item">
-                  <div class="timeline-icon pre-ingreso"><i class="fas fa-file-alt"></i></div>
-                  <div class="timeline-card">
-                    <div class="timeline-card-header">PRE-INGRESO</div>
-                    <div class="timeline-card-body">
-                      <p><strong>Fecha:</strong> ${fAhora}</p>
-                      <p><strong>Usuario:</strong> ${datos.solicitadoPor}</p>
-                      <p><strong>Obser.:</strong> ${datos.observaciones}</p>
-                      <a href="#" class="link-descarga" id="btnDescargarActa"><i class="fas fa-download"></i> DESCARGAR ACTA DE PRE-INGRESO</a>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="timeline-item">
-                  <div class="timeline-icon recepcion"><i class="fas fa-box"></i></div>
-                  <div class="timeline-card">
-                    <div class="timeline-card-header">RECEPCIÓN</div>
-                    <div class="timeline-card-body">
-                      <p><strong>Fecha:</strong> ${fAhora}</p>
-                      <a href="#" class="link-descarga"><i class="fas fa-download"></i> DESCARGAR CADENA DE CUSTODIA</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div></div>
-
-            <div style="text-align:center;margin:30px 0;color:#999;font-size:12px">SGS</div>
-          </div>`;
-
-            const container = qs('.content');
-            container.insertAdjacentHTML('beforeend', html);
-            // Mostrar el contenedor de resumen (queda al final)
-            const resumenEl = qs('#resumen');
-            if (resumenEl) { resumenEl.classList.add('active'); }
-            // Acción volver
-            qs('#btnVolverFormulario').addEventListener('click', () => location.reload());
-            // Acción descargar acta
-            qs('#btnDescargarActa').addEventListener('click', (e) => {
-                e.preventDefault();
-                generarPDFActa();
-            });
-        }
-
-        // --- Enviar / guardar y mostrar resumen ---
+        // --- Enviar / guardar y redirigir ---
         function enviar() {
             if (!puntosSeleccionados.length) return alert('Por favor, seleccione al menos un punto de muestreo antes de enviar.');
             const cliente = qs('#selectCliente').value, ol = qs('#selectOL').value;
@@ -1917,12 +1357,12 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
             if (!confirm('¿Está seguro que desea enviar el Pre-Ingreso de Aire?')) return;
 
             // Generar folio
-            const folio = Math.floor(Math.random() * 900000) + 100000;
+            const folio = 15901; // Folio fijo para la demo
 
             // Tipo & filtro
             const tipo = qs('input[name="tipoMuestreo"]:checked').value;
             const rf = qs('input[name="tipoFiltro"]:checked');
-            const tipoFiltro = (tipo === 'filtros' && rf) ? rf.value : null;
+            const tipoFiltro = (tipo === 'filtros' && rf) ? rf.value.toUpperCase() : 'FILTRO'; // Ajustado
 
             // Guardar
             sessionStorage.setItem('folioPreIngreso', folio);
@@ -1945,8 +1385,22 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                 adcResponsable: qs('#adcResponsable').value
             }));
 
-            // Mostrar resumen
-            mostrarResumen();
+            // Redirigir a la página de solo lectura
+            const readonlyParams = new URLSearchParams({
+                folio: folio,
+                readonly: 'true',
+                'tipo-muestra': tipoFiltro,
+                estado: 'Recepcionado',
+                'numero-muestras': puntosSeleccionados.length,
+                matriz: 'AIRE_MP_FILTRO_47MM' // Matriz fija para la demo
+            });
+
+            // Añadir tipo-filtro solo si es relevante
+            if (tipoFiltro) {
+                readonlyParams.append('tipo-filtro', tipoFiltro.toUpperCase());
+            }
+
+            window.location.href = `ficha-preingreso-aire-readonly.html?${readonlyParams.toString()}`;
         }
 
         // --- Listeners principales ---
@@ -1957,7 +1411,7 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
 
             // Navbar & sidebar
             qs('#btnMenu').addEventListener('click', () => qs('#sidebar').classList.toggle('show'));
-            qs('#btnBack').addEventListener('click', () => { window.location.href = 'sgs-sistema-simplificado.html#ingresos-aire'; });
+            qs('#btnBack').addEventListener('click', () => { window.history.back(); });
             qs('#btnSalir').addEventListener('click', e => { e.preventDefault(); alert('Cerrando sesión...') });
 
             // Matriz por defecto
@@ -2095,9 +1549,6 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                 if (e.target.id === 'btnNuevoPunto') {
                     abrirModalAgregarPunto();
                 }
-                if (e.target.id === 'btnMasivo') {
-                    abrirModalMasivo();
-                }
             });
 
             // ===== Modal masivo - listeners =====
@@ -2151,17 +1602,7 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                 </div>
                 <div class="form-group-nuevo">
                     <label>Lugar de Monitoreo<span class="required">*</span></label>
-                    <select id="lugarMonitoreoNuevoPunto">
-                        <option value="">Seleccione un lugar</option>
-                    </select>
-                </div>
-                <div class="form-group-nuevo">
-                    <label>Nombre del Punto<span class="required">*</span></label>
-                    <input type="text" id="nombrePuntoNuevo" placeholder="Ingrese el nombre del punto">
-                </div>
-                <div class="form-group-nuevo">
-                    <label>Dirección de monitoreo<span class="required">*</span></label>
-                    <input type="text" id="direccionMonitoreoNuevo" placeholder="Ingrese la dirección">
+                    <input type="text" id="lugarMonitoreoNuevoPunto" placeholder="Ingrese un lugar de monitoreo">
                 </div>
             </div>
             <div class="modal-footer-nuevo">

@@ -52,7 +52,11 @@
         .btn-nuevo:hover { background-color: #57534e; }
 
         .filtros-adicionales { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 0; opacity: 0; }
-        .filtros-adicionales.show { max-height: 500px; opacity: 1; }
+        .filtros-adicionales.show {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 15px; /* Separación solicitada */
+        }
 
         /* Document Cards */
         .document-card { margin-bottom: 8px; }
@@ -95,6 +99,7 @@
         .badge-info { background-color: #51cbce; color: #ffffff; }
         .badge-success { background-color: #6bd098; color: #ffffff; }
         .badge-secondary { background-color: #a49e93; color: #ffffff; }
+        .badge-hig { background-color: #6c757d; color: #ffffff; } /* Nueva clase para HIG */
 
         /* Footer */
         .footer { background: white; border-top: 1px solid #e3e3e3; padding: 15px 20px; margin-top: auto; text-align: right; }
@@ -106,6 +111,52 @@
             .sidebar { left: -200px; }
             .sidebar.show { left: 0; }
             .main-panel { width: 100%; margin-left: 0; }
+        }
+
+        /* Responsive para móviles - Botones de filtros */
+        @media (max-width: 767px) {
+            /* Botón Ver más: cambiar texto a solo "Más" */
+            .btn-ver-mas {
+                padding: 8px 12px;
+                white-space: nowrap;
+            }
+
+            /* El contenedor principal debe permitir wrap */
+            .col-lg-7.col-md-6.col-12.mb-3 > div[style*="display: flex"] {
+                flex-wrap: wrap !important;
+            }
+
+            /* Botón Descargar Excel: ocultar en móvil */
+            .btn-nuevo[style*="background-color: #28a745"] {
+                display: none !important;
+            }
+
+            /* Contenedor ml-auto: NO permitir wrap interno */
+            .col-lg-7.col-md-6.col-12.mb-3 .ml-auto {
+                margin-left: auto !important;
+                flex-wrap: nowrap !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+
+            /* Botón Nuevo Ingreso: posición absoluta para sacarlo del flujo */
+            .btn-nuevo[onclick*="ficha-preingreso-aire"] {
+                position: absolute !important;
+                left: 15px !important;
+                right: 15px !important;
+                width: calc(100% - 30px) !important;
+                margin-top: 48px !important;
+            }
+
+            /* Agregar padding al card-content para hacer espacio al botón */
+            .card-content {
+                padding-bottom: 50px !important;
+            }
+
+            /* Clase que se añade con JS cuando los filtros están expandidos */
+            .card-content.filtros-expanded {
+                padding-bottom: 10px !important;
+            }
         }
     </style>
 </head>
@@ -136,17 +187,21 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="row align-items-end">
-                            <div class="col-lg-5 col-md-6 col-12 mb-3">
+                            <div class="col-lg-2 col-md-6 col-6 mb-3">
                                 <label for="filter-folio">Folio</label>
                                 <input type="text" id="filter-folio" class="form-control" placeholder="Buscar por N° de Folio">
                             </div>
-                            <div class="col-lg-7 col-md-6 col-12 mb-3">
+                            <div class="col-lg-2 col-md-6 col-6 mb-3">
+                                <label for="filter-job">Job</label>
+                                <input type="text" id="filter-job" class="form-control" placeholder="Buscar por Job">
+                            </div>
+                            <div class="col-lg-8 col-md-12 col-12 mb-3">
                                 <label class="d-none d-md-block">&nbsp;</label>
-                                <div style="display: flex; gap: 10px;">
+                                <div class="d-flex flex-wrap" style="gap: 10px;">
                                     <button class="btn-buscar"><i class="fa fa-search"></i> Buscar</button>
                                     <button class="btn-limpiar" title="Restablecer filtros"><i class="fa fa-undo"></i></button>
                                     <button id="btn-ver-mas" class="btn-ver-mas" title="Ver más filtros"><i class="fa fa-chevron-down"></i> Ver más</button>
-                                    <div class="ml-auto" style="display: flex; gap: 10px;">
+                                    <div class="ml-md-auto d-flex" style="gap: 10px;">
                                         <button class="btn-nuevo" style="background-color: #28a745; border-color: #28a745;"><i class="fa fa-file-excel"></i> Descargar a Excel</button>
                                         <button onclick="window.location.href='ficha-preingreso-aire.html'" class="btn-nuevo"><i class="fa fa-plus"></i> Nuevo Ingreso de Aire</button>
                                     </div>
@@ -163,7 +218,7 @@
                                 </div>
                                 <div class="col-md-3 col-6 mb-3">
                                     <label for="filter-estado">Estado</label>
-                                    <select id="filter-estado" class="form-control"><option value="">Todos</option><option>Por Ingresar</option><option>Recepcionado</option><option>Finalizado</option></select>
+                                    <select id="filter-estado" class="form-control"><option value="">Todos</option><option>Por Ingresar</option><option>Recepcionado</option></select>
                                 </div>
                                 <div class="col-md-3 col-6 mb-3">
                                     <label for="filter-matriz">Matriz</label>
@@ -196,9 +251,9 @@
                 <div id="documentList">
                     <!-- Card 1: Finalizado -->
                     <div class="card document-card" 
-                         data-folio="15842"
+                         data-folio="15842" 
                          data-tipo-muestreo="MPS" 
-                         data-estado="Finalizado"
+                         data-estado="Recepcionado"
                          data-matriz="POLVO_SEDIMENTABLE"
                          data-ol="801598"
                          data-cliente="CORP NACIONAL DEL COBRE DE CHILE"
@@ -207,11 +262,11 @@
                         <div class="card-body">
                             <div class="document-card-header">
                                 <div class="document-title-section">
-                                    <a href="ficha-preingreso-aire-readonly.html?folio=15842&readonly=true&tipo-muestra=MPS&estado=Finalizado&numero-muestras=15&matriz=POLVO_SEDIMENTABLE" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15842</span></a>
+                                    <a href="ficha-preingreso-aire-readonly.html?folio=15842&readonly=true&tipo-muestra=MPS&estado=Recepcionado&numero-muestras=15&matriz=POLVO_SEDIMENTABLE" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15842</span></a>
                                     <span class="badge badge-info">MPS</span>
                                 </div>
                                 <div class="document-actions-header">
-                                    <span class="badge badge-finalizado">Finalizado</span>
+                                    <span class="badge badge-recepcionado">Recepcionado</span>
                                 </div>
                             </div>
                             <div class="document-info-line">
@@ -294,7 +349,7 @@
                     <div class="card document-card"
                          data-folio="15823"
                          data-tipo-muestreo="FILTRO"
-                         data-estado="Finalizado"
+                         data-estado="Por Ingresar"
                          data-matriz="AIRE_MP_FILTRO_37MM"
                          data-ol="801645"
                          data-cliente="CORP NACIONAL DEL COBRE DE CHILE" 
@@ -303,11 +358,11 @@
                         <div class="card-body">
                             <div class="document-card-header">
                                 <div class="document-title-section">
-                                    <a href="ficha-preingreso-aire-readonly.html?folio=15823&readonly=true&tipo-muestra=FILTRO&estado=Finalizado&numero-muestras=20&matriz=AIRE_MP_FILTRO_37MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15823</span></a>
+                                    <a href="ficha-preingreso-aire-readonly.html?folio=15823&readonly=true&tipo-muestra=FILTRO&estado=Por Ingresar&numero-muestras=20&matriz=AIRE_MP_FILTRO_37MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 15823</span></a>
                                     <span class="badge badge-info">FILTRO</span><span class="badge badge-success">MP10</span>
                                 </div>
                                 <div class="document-actions-header">
-                                    <span class="badge badge-finalizado">Finalizado</span>
+                                    <span class="badge badge-por-ingresar">Por Ingresar</span>
                                 </div>
                             </div>
                             <div class="document-info-line">
@@ -326,7 +381,7 @@
                     <div class="card document-card"
                          data-folio="16010"
                          data-tipo-muestreo="FILTRO"
-                         data-estado="Finalizado"
+                         data-estado="Recepcionado"
                          data-matriz="AIRE_MP_FILTRO_47MM"
                          data-ol="804510"
                          data-cliente="ANGLO AMERICAN SUR S.A." 
@@ -335,11 +390,11 @@
                         <div class="card-body">
                             <div class="document-card-header">
                                 <div class="document-title-section">
-                                    <a href="ficha-preingreso-aire-readonly.html?folio=16010&readonly=true&tipo-muestra=FILTRO&estado=Finalizado&numero-muestras=18&matriz=AIRE_MP_FILTRO_47MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16010</span></a>
+                                    <a href="ficha-preingreso-aire-readonly.html?folio=16010&readonly=true&tipo-muestra=FILTRO&estado=Recepcionado&numero-muestras=18&matriz=AIRE_MP_FILTRO_47MM" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16010</span></a>
                                     <span class="badge badge-info">FILTRO</span><span class="badge badge-success">MP10</span>
                                 </div>
                                 <div class="document-actions-header">
-                                    <span class="badge badge-finalizado">Finalizado</span>
+                                    <span class="badge badge-recepcionado">Recepcionado</span>
                                 </div>
                             </div>
                             <div class="document-info-line">
@@ -357,7 +412,7 @@
                     <!-- Card 6: Por Ingresar -->
                     <div class="card document-card"
                          data-folio="16015"
-                         data-tipo-muestreo="MPS"
+                         data-tipo-muestreo="FILTRO"
                          data-estado="Por Ingresar"
                          data-matriz="POLVO_SEDIMENTABLE"
                          data-ol="805001"
@@ -367,8 +422,8 @@
                         <div class="card-body">
                             <div class="document-card-header">
                                 <div class="document-title-section">
-                                    <a href="ficha-preingreso-aire-readonly.html?folio=16015&readonly=true&tipo-muestra=MPS&estado=Por Ingresar&numero-muestras=5&matriz=POLVO_SEDIMENTABLE" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16015</span></a>
-                                    <span class="badge badge-info">MPS</span>
+                                    <a href="ficha-preingreso-aire-readonly.html?folio=16015&readonly=true&tipo-muestra=FILTRO&tipo-filtro=HIG&estado=Por Ingresar&numero-muestras=5&matriz=POLVO_SEDIMENTABLE" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16015</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-hig">HIG</span>
                                 </div>
                                 <div class="document-actions-header">
                                     <span class="badge badge-por-ingresar">Por Ingresar</span>
@@ -422,7 +477,7 @@
                     <div class="card document-card"
                          data-folio="16030"
                          data-tipo-muestreo="FILTRO"
-                         data-estado="Finalizado"
+                         data-estado="Por Ingresar"
                          data-matriz="AIRE_MP_FILTRO_HVOL"
                          data-ol="807834"
                          data-cliente="ANTOFAGASTA MINERALS S.A." 
@@ -431,11 +486,11 @@
                         <div class="card-body">
                             <div class="document-card-header">
                                 <div class="document-title-section">
-                                    <a href="ficha-preingreso-aire-readonly.html?folio=16030&readonly=true&tipo-muestra=FILTRO&estado=Finalizado&numero-muestras=10&matriz=AIRE_MP_FILTRO_HVOL" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16030</span></a>
-                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-success">MP10</span>
+                                    <a href="ficha-preingreso-aire-readonly.html?folio=16030&readonly=true&tipo-muestra=FILTRO&tipo-filtro=HIG&estado=Por Ingresar&numero-muestras=10&matriz=AIRE_MP_FILTRO_HVOL" class="document-folio-link"><i class="fa fa-search"></i><span class="document-folio"><span class="document-folio-label">Folio</span> 16030</span></a>
+                                    <span class="badge badge-info">FILTRO</span><span class="badge badge-hig">HIG</span>
                                 </div>
                                 <div class="document-actions-header">
-                                    <span class="badge badge-finalizado">Finalizado</span>
+                                    <span class="badge badge-por-ingresar">Por Ingresar</span>
                                 </div>
                             </div>
                             <div class="document-info-line">
@@ -471,16 +526,41 @@
             const btnVerMas = document.getElementById('btn-ver-mas');
             const filtrosAdicionales = document.getElementById('filtros-adicionales');
             if (btnVerMas) {
+                // Función para actualizar el texto según el tamaño de pantalla
+                function updateButtonText(isExpanded) {
+                    const isMobile = window.innerWidth <= 767;
+                    if (isExpanded) {
+                        btnVerMas.innerHTML = isMobile
+                            ? '<i class="fa fa-chevron-up"></i> Menos'
+                            : '<i class="fa fa-chevron-up"></i> Ver menos';
+                    } else {
+                        btnVerMas.innerHTML = isMobile
+                            ? '<i class="fa fa-chevron-down"></i> Más'
+                            : '<i class="fa fa-chevron-down"></i> Ver más';
+                    }
+                }
+
                 btnVerMas.addEventListener('click', function() {
                     const isExpanded = filtrosAdicionales.classList.contains('show');
                     if (isExpanded) {
+                        filtrosAdicionales.closest('.card-content').classList.remove('filtros-expanded');
                         filtrosAdicionales.classList.remove('show');
-                        btnVerMas.innerHTML = '<i class="fa fa-chevron-down"></i> Ver más';
+                        updateButtonText(false);
                     } else {
                         filtrosAdicionales.classList.add('show');
-                        btnVerMas.innerHTML = '<i class="fa fa-chevron-up"></i> Ver menos';
+                        filtrosAdicionales.closest('.card-content').classList.add('filtros-expanded');
+                        updateButtonText(true);
                     }
                 });
+
+                // Actualizar el texto cuando cambia el tamaño de la ventana
+                window.addEventListener('resize', function() {
+                    const isExpanded = filtrosAdicionales.classList.contains('show');
+                    updateButtonText(isExpanded);
+                });
+
+                // Inicializar el texto correcto al cargar
+                updateButtonText(false);
             }
 
             // --- Lógica de Filtros ---

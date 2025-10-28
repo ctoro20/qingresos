@@ -101,6 +101,28 @@
             color: #495057;
             border: 1px solid #ced4da;
         }
+        .btn-descarga-cdc {
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+        .job-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .job-container .fa-download {
+            cursor: pointer;
+            color: #5fb3b3;
+        }
     </style>
     <style>
         * {
@@ -1087,6 +1109,16 @@
             const qs = (s, c = document) => c.querySelector(s);
             const qsa = (s, c = document) => Array.from(c.querySelectorAll(s));
 
+            function simularDescargaCDCIndividual(jobId) {
+                // Lógica para simular la descarga de una cadena de custodia individual
+                alert(`Simulación de descarga de Cadena de Custodia para el JOB: ${jobId}`);
+            }
+
+            function simularDescargaCadenas() {
+                // Lógica para simular la descarga de un ZIP con todas las cadenas de custodia
+                alert('Simulación de descarga de cadenas de custodias');
+            }
+
             // --- Funciones de Renderizado ---
             function mostrarResumen(datos) {
                 const container = qs('#readonly-view');
@@ -1097,6 +1129,17 @@
                 const fHoy = new Date().toLocaleDateString('es-CL');
                 const [k, i] = datos.ol.split('-');
                 const olCodigo = info.ols[parseInt(i, 10)].codigo;
+
+                let muestrasAceptadas = 0;
+                if (datos.estado === 'Recepcionado' || datos.estado === 'Finalizado') {
+                    datos.puntosSeleccionados.forEach(p => {
+                        // Para consistencia, asignamos el estado 'aceptada' aquí
+                        if (p.aceptada === undefined) {
+                            p.aceptada = Math.random() > 0.2; // 80% de probabilidad
+                        }
+                        if (p.aceptada) muestrasAceptadas++;
+                    });
+                }
 
                 const muestrasHTML = datos.puntosSeleccionados.map((p, idx) => {
                     const ini = p.fechaInicio && p.horaInicio ? `${p.fechaInicio} ${p.horaInicio}` : p.fechaInicio || '';
@@ -1109,10 +1152,15 @@
                     let jobTexto = p.job || 'N/A';
 
                     if (datos.estado === 'Recepcionado' || datos.estado === 'Finalizado') {
-                        const aceptada = Math.random() > 0.2; // 80% de probabilidad de ser aceptada
+                        const aceptada = p.aceptada;
                         const clase = aceptada ? 'si' : 'no';
                         const texto = aceptada ? 'Aceptada' : 'No Aceptada';
                         aceptadaTag = `<span class="muestra-aceptada-tag ${clase}">${texto}</span>`;
+
+                        // Modificar el texto del JOB para incluir el icono de descarga si cumple las condiciones
+                        if (aceptada && p.job && datos.generacionJob === 'individual') {
+                            jobTexto = `<div class="job-container">${p.job} <i class="fas fa-download" title="Descargar Cadena de Custodia" data-job-id="${p.job}"></i></div>`;
+                        }
                     } else if (datos.estado === 'Por Ingresar') {
                         aceptadaTag = `<span class="muestra-aceptada-tag pendiente">Pendiente</span>`;
                         jobTexto = 'Pendiente';
@@ -1140,10 +1188,14 @@
                 }).join('');
 
                 const html = `
-                    <div class="card"><div class="card-content"><h2 style="color:#ef8157;font-size:20px;margin-bottom:0"># Folio ${datos.folio}</h2></div></div>
+                    <div class="card"><div class="card-content" style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; padding-top: 15px;"><h2 style="color:#ef8157;font-size:20px;margin:0;"># Folio ${datos.folio}</h2><span class="badge-ingresado" style="font-size: 11px; padding: 3px 8px;">${datos.estado.toUpperCase()}</span></div></div>
                     <div class="card"><div class="card-content"><h5>Información general del cliente</h5><div class="row mb-3"><div class="col-md-6"><label>Cliente</label><div class="info-value">${info.rut} - ${info.nombre}</div></div><div class="col-md-6"><label>OL</label><div class="info-value">${olCodigo}</div></div></div><div class="row mb-3"><div class="col-md-12"><label>Proyecto</label><div class="info-value">${datos.proyecto || 'Default project'}</div></div></div><div class="row mb-3"><div class="col-md-4"><label>Solicitado por:</label><div class="info-value">${datos.solicitadoPor}</div></div><div class="col-md-4"><label>Atención a:</label><div class="info-value">${datos.atencionA}</div></div><div class="col-md-4"><label>ADC Responsable:</label><div class="info-value">${datos.adcResponsable}</div></div></div></div></div>
-                    <div class="card"><div class="card-content"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h5 class="mb-0">Información general</h5><div style="display:flex;align-items:center;gap:15px"><span class="badge-ingresado">${datos.estado.toUpperCase()}</span><span style="font-size:14px;color:#666">Fecha: ${fHoy}</span></div></div><div class="row mb-3"><div class="col-md-6"><label>Tipo Muestreo</label><div class="info-value">${datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'}</div></div>${datos.tipoMuestreo === 'filtro' && datos.tipoFiltro ? `<div class="col-md-6"><label>Tipo de Filtro</label><div class="info-value">${datos.tipoFiltro.toUpperCase()}</div></div>`: '<div class="col-md-6"></div>'}</div><div class="row mb-3"><div class="col-md-6"><label>Muestreado por:</label><div class="info-value">${datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'Cliente'}</div></div><div class="col-md-6"><label>Matriz</label><div class="info-value">${datos.matriz}</div></div></div><div class="row mb-3"><div class="col-md-12"><label>Plan</label><div class="info-value">${datos.plan}</div></div></div><div class="row"><div class="col-md-12"><label>Generación de JOB</label><div class="info-value">${datos.generacionJob === 'total' ? 'Generar un JOB para la totalidad de los puntos ingresados' : 'Generar un JOB por punto ingresado'}</div></div></div></div></div>
-                    <div class="card"><div class="card-content"><h5>Puntos de Muestreo</h5><div class="readonly-muestras-list">${muestrasHTML}</div><div class="row mb-3 mt-4"><div class="col-md-12"><strong>Cantidad de muestras ingresadas: ${datos.puntosSeleccionados.length}</strong></div></div><div class="row mb-3"><div class="col-md-4"><label>Responsable de Muestreo</label><div class="info-value">${datos.responsable}</div></div><div class="col-md-4"><label>Fecha Transporte</label><div class="info-value">${datos.fechaTransporte}</div></div><div class="col-md-4"><label>Hora Transporte</label><div class="info-value">${datos.horaTransporte}</div></div></div><div class="row"><div class="col-md-12"><label>Observaciones de terreno</label><div class="info-value">${datos.observaciones}</div></div></div></div></div>
+                    <div class="card"><div class="card-content"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px"><h5 class="mb-0">Información general</h5><div style="display:flex;align-items:center;gap:15px"><span style="font-size:14px;color:#666">Fecha: ${fHoy}</span></div></div><div class="row mb-3"><div class="col-md-6"><label>Tipo Muestreo</label><div class="info-value">${datos.tipoMuestreo === 'mps' ? 'MPS' : 'Filtros'}</div></div>${datos.tipoMuestreo === 'filtro' && datos.tipoFiltro ? `<div class="col-md-6"><label>Tipo de Filtro</label><div class="info-value">${datos.tipoFiltro.toUpperCase()}</div></div>`: '<div class="col-md-6"></div>'}</div><div class="row mb-3"><div class="col-md-6"><label>Muestreado por:</label><div class="info-value">${datos.muestreadoPor === 'sgs' ? 'SGS Chile' : 'Cliente'}</div></div><div class="col-md-6"><label>Matriz</label><div class="info-value">${datos.matriz}</div></div></div><div class="row mb-3"><div class="col-md-12"><label>Plan</label><div class="info-value">${datos.plan}</div></div></div><div class="row"><div class="col-md-12"><label>Generación de JOB</label><div class="info-value">${datos.generacionJob === 'total' ? 'Generar un JOB para la totalidad de los puntos ingresados' : 'Generar un JOB por punto ingresado'}</div></div></div></div></div>
+                    <div class="card"><div class="card-content"><h5>Puntos de Muestreo</h5><div class="readonly-muestras-list">${muestrasHTML}</div><div class="row mb-3 mt-4"><div class="col-md-12"><strong>${
+                        datos.estado === 'Recepcionado'
+                        ? `Cantidad de muestras aceptadas: ${muestrasAceptadas} de ${datos.puntosSeleccionados.length}`
+                        : `Cantidad de muestras ingresadas: ${datos.puntosSeleccionados.length}`
+                    }</strong></div></div><div class="row mb-3"><div class="col-md-4"><label>Responsable de Muestreo</label><div class="info-value">${datos.responsable}</div></div><div class="col-md-4"><label>Fecha Transporte</label><div class="info-value">${datos.fechaTransporte}</div></div><div class="col-md-4"><label>Hora Transporte</label><div class="info-value">${datos.horaTransporte}</div></div></div><div class="row"><div class="col-md-12"><label>Observaciones de terreno</label><div class="info-value">${datos.observaciones}</div></div></div></div></div>
                     <div class="card"><div class="card-content"><div class="timeline-badge">TIME LINE</div><div class="timeline">
                         <div class="timeline-item">
                             <div class="timeline-icon pre-ingreso"><i class="fas fa-file-alt"></i></div>
@@ -1152,16 +1204,39 @@
                         ${(datos.estado === 'Recepcionado' || datos.estado === 'Finalizado') ? `
                         <div class="timeline-item">
                             <div class="timeline-icon recepcion"><i class="fas fa-box"></i></div>
-                            <div class="timeline-card"><div class="timeline-card-header">RECEPCIÓN</div><div class="timeline-card-body"><p><strong>Fecha:</strong> ${fAhora}</p><a href="#" class="link-descarga"><i class="fas fa-download"></i> DESCARGAR CADENA DE CUSTODIA</a></div></div>
+                            <div class="timeline-card"><div class="timeline-card-header">RECEPCIÓN</div><div class="timeline-card-body"><p><strong>Fecha:</strong> ${fAhora}</p><a href="#" class="link-descarga" id="btnDescargarCadenas"><i class="fas fa-download"></i> DESCARGAR CADENA DE CUSTODIA</a></div></div>
                         </div>` : ''}
                     </div></div></div>
                     <div style="text-align:center;margin:30px 0;color:#999;font-size:12px">SGS</div>
                 `;
 
                 container.innerHTML = html;
+
+                // Lógica para los botones de descarga de cadena de custodia
+                if (datos.estado === 'Recepcionado' && datos.generacionJob === 'individual') {
+                    const btnDescargaZip = qs('#btnDescargarCadenas');
+                    if (btnDescargaZip) {
+                        btnDescargaZip.innerHTML = '<i class="fas fa-file-archive"></i> Descargar ZIP con todas las cadenas de custodia';
+                        btnDescargaZip.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            simularDescargaCadenas();
+                        });
+                    }
+                }
+
                 qs('#btnDescargarActa').addEventListener('click', (e) => {
                     e.preventDefault();
                     generarPDFActa(datos);
+                });
+
+                // Añadir listener para los iconos de descarga individuales
+                container.addEventListener('click', function(e) {
+                    if (e.target.matches('.job-container .fa-download')) {
+                        const jobId = e.target.dataset.jobId;
+                        if (jobId) {
+                            simularDescargaCDCIndividual(jobId);
+                        }
+                    }
                 });
             }
 
@@ -1180,6 +1255,7 @@
                 const folio = params.get('folio') || 'N/A';
                 const tipoMuestra = params.get('tipo-muestra') || 'MPS';
                 const estado = params.get('estado') || 'Finalizado';
+                const tipoFiltroParam = params.get('tipo-filtro'); // Nuevo: obtener tipo de filtro
                 const numMuestras = parseInt(params.get('numero-muestras'), 10) || 5;
                 const matriz = params.get('matriz') || 'POLVO_SEDIMENTABLE';
 
@@ -1193,14 +1269,15 @@
                         direccion: `Sector ${String.fromCharCode(65 + i)}`,
                         lugarMuestreo: lugaresMuestreoFiltro[i % lugaresMuestreoFiltro.length], // Asignación aleatoria
                         tipo: tipoMuestra.toLowerCase() === 'mps' ? 'mps' : 'filtro',
-                        tipoFiltro: tipoMuestra.toLowerCase() === 'filtro' ? (i % 2 === 0 ? 'MP10' : 'MP2.5') : null,
+                        tipoFiltro: tipoFiltroParam || (tipoMuestra.toLowerCase() === 'filtro' ? (i % 2 === 0 ? 'MP10' : 'MP2.5') : null),
                         fechaCreacion: '2025-10-01',
                         job: `EA25-0${8458 + i}`,
                         fechaInicio: '2025-10-10',
                         horaInicio: '09:00',
                         fechaTermino: '2025-10-10',
                         horaTermino: '17:00',
-                        comentario: i % 3 === 0 ? 'Muestra en condiciones óptimas.' : ''
+                        comentario: i % 3 === 0 ? 'Muestra en condiciones óptimas.' : '',
+                        aceptada: true // Aseguramos que la muestra esté aceptada para la prueba
                     });
                 }
 
@@ -1211,7 +1288,7 @@
                     ol: 'codelco-0',
                     puntosSeleccionados: mockPuntos,
                     tipoMuestreo: tipoMuestra.toLowerCase(),
-                    tipoFiltro: tipoMuestra.toLowerCase() === 'filtro' ? (Math.random() < 0.5 ? 'mp10' : 'mp2.5') : null,
+                    tipoFiltro: tipoFiltroParam || (tipoMuestra.toLowerCase() === 'filtro' ? (Math.random() < 0.5 ? 'mp10' : 'mp2.5') : null),
                     matriz: matriz,
                     muestreadoPor: 'sgs',
                     plan: 'AIRE_001_A',
