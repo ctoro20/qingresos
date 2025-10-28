@@ -1148,6 +1148,13 @@
                 btnNuevo.id = 'btnNuevoPunto';
                 btnNuevo.textContent = 'Nuevo Punto';
                 actionsDiv.appendChild(btnNuevo);
+
+                const btnMasivo = document.createElement('button');
+                btnMasivo.className = 'btn-nuevo-punto';
+                btnMasivo.id = 'btnAgregarMasivo';
+                btnMasivo.textContent = 'Masivo';
+                actionsDiv.appendChild(btnMasivo);
+
                 searchDiv.parentNode.insertBefore(actionsDiv, searchDiv);
                 searchDiv.style.display = 'none';
             }
@@ -1200,6 +1207,7 @@
         // ===== FUNCIONALIDAD DE COMENTARIOS =====
         let comentarioActualIdx = -1;
         let modalComentario;
+        let modalAgregarMasivo;
         let textareaComentario;
 
         // Abrir modal de comentarios
@@ -1290,6 +1298,16 @@
             alert('Punto de muestreo agregado exitosamente');
         }
         // ===== FIN FUNCIONALIDAD AGREGAR NUEVO PUNTO =====
+
+        // ===== FUNCIONALIDAD AGREGAR MASIVO =====
+        function abrirModalMasivo() {
+            qs('#matrizMasivo').value = qs('#matriz').value || '';
+            modalAgregarMasivo.classList.add('show');
+        }
+
+        function cerrarModalMasivo() {
+            modalAgregarMasivo.classList.remove('show');
+        }
 
         // ===== FIN MODAL MASIVO =====
 
@@ -1549,6 +1567,11 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                 if (e.target.id === 'btnNuevoPunto') {
                     abrirModalAgregarPunto();
                 }
+
+                if (e.target.id === 'btnAgregarMasivo') {
+                    abrirModalMasivo();
+                }
+
             });
 
             // ===== Modal masivo - listeners =====
@@ -1603,6 +1626,10 @@ Horas transcurridas: ${Math.floor(horas)} horas`);
                 <div class="form-group-nuevo">
                     <label>Lugar de Monitoreo<span class="required">*</span></label>
                     <input type="text" id="lugarMonitoreoNuevoPunto" placeholder="Ingrese un lugar de monitoreo">
+                </div>
+                <div class="form-group-nuevo">
+                    <label>Nombre del Punto<span class="required">*</span></label>
+                    <input type="text" id="nombrePuntoNuevo" placeholder="Ingrese el nombre o ID del punto">
                 </div>
             </div>
             <div class="modal-footer-nuevo">
